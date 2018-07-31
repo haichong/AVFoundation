@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  FunctionListViewController.h
 //  AVPlayerIntroduce
 //
 //  Created by fuhang on 2018/7/31.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface FunctionListViewController : UITableViewController
 
 @end
-

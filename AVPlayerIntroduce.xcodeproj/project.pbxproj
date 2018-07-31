@@ -8,24 +8,27 @@
 
 /* Begin PBXBuildFile section */
 		00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BF921106FDF002BC2EB /* AppDelegate.m */; };
-		00806BFD21106FDF002BC2EB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BFC21106FDF002BC2EB /* ViewController.m */; };
+		00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */; };
 		00806C0021106FDF002BC2EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00806BFE21106FDF002BC2EB /* Main.storyboard */; };
 		00806C0221106FE0002BC2EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0121106FE0002BC2EB /* Assets.xcassets */; };
 		00806C0521106FE0002BC2EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */; };
 		00806C0821106FE0002BC2EB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0721106FE0002BC2EB /* main.m */; };
+		00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0F21109151002BC2EB /* FunctionListViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		00806BF521106FDF002BC2EB /* AVPlayerIntroduce.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayerIntroduce.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00806BF821106FDF002BC2EB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		00806BF921106FDF002BC2EB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		00806BFB21106FDF002BC2EB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		00806BFC21106FDF002BC2EB /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		00806BFB21106FDF002BC2EB /* FHSamplePlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHSamplePlayerViewController.h; sourceTree = "<group>"; };
+		00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHSamplePlayerViewController.m; sourceTree = "<group>"; };
 		00806BFF21106FDF002BC2EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		00806C0121106FE0002BC2EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		00806C0421106FE0002BC2EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		00806C0621106FE0002BC2EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00806C0721106FE0002BC2EB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		00806C0E21109151002BC2EB /* FunctionListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FunctionListViewController.h; sourceTree = "<group>"; };
+		00806C0F21109151002BC2EB /* FunctionListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FunctionListViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,8 +63,8 @@
 			children = (
 				00806BF821106FDF002BC2EB /* AppDelegate.h */,
 				00806BF921106FDF002BC2EB /* AppDelegate.m */,
-				00806BFB21106FDF002BC2EB /* ViewController.h */,
-				00806BFC21106FDF002BC2EB /* ViewController.m */,
+				00806C1121109282002BC2EB /* 功能列表 */,
+				00806C1221109296002BC2EB /* 做一个最简单的播放器 */,
 				00806BFE21106FDF002BC2EB /* Main.storyboard */,
 				00806C0121106FE0002BC2EB /* Assets.xcassets */,
 				00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */,
@@ -69,6 +72,24 @@
 				00806C0721106FE0002BC2EB /* main.m */,
 			);
 			path = AVPlayerIntroduce;
+			sourceTree = "<group>";
+		};
+		00806C1121109282002BC2EB /* 功能列表 */ = {
+			isa = PBXGroup;
+			children = (
+				00806C0E21109151002BC2EB /* FunctionListViewController.h */,
+				00806C0F21109151002BC2EB /* FunctionListViewController.m */,
+			);
+			path = "功能列表";
+			sourceTree = "<group>";
+		};
+		00806C1221109296002BC2EB /* 做一个最简单的播放器 */ = {
+			isa = PBXGroup;
+			children = (
+				00806BFB21106FDF002BC2EB /* FHSamplePlayerViewController.h */,
+				00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */,
+			);
+			path = "做一个最简单的播放器";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,7 +162,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00806BFD21106FDF002BC2EB /* ViewController.m in Sources */,
+				00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */,
+				00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */,
 				00806C0821106FE0002BC2EB /* main.m in Sources */,
 				00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */,
 			);
@@ -286,13 +308,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V65K68RFJ2;
 				INFOPLIST_FILE = AVPlayerIntroduce/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.fuhang.AVPlayerIntroduce;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -303,13 +326,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V65K68RFJ2;
 				INFOPLIST_FILE = AVPlayerIntroduce/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.fuhang.AVPlayerIntroduce;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

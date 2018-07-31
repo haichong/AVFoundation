@@ -1,21 +1,21 @@
 //
-//  ViewController.m
+//  FHSamplePlayerViewController.m
 //  AVPlayerIntroduce
 //
 //  Created by fuhang on 2018/7/31.
 //  Copyright © 2018年 wechat. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "FHSamplePlayerViewController.h"
 
 // 导入AVFoundation框架
 #import <AVFoundation/AVFoundation.h>
 
-@interface ViewController ()
+@interface FHSamplePlayerViewController ()
 
 @end
 
-@implementation ViewController
+@implementation FHSamplePlayerViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
