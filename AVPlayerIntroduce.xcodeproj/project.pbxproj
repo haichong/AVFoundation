@@ -14,6 +14,9 @@
 		00806C0521106FE0002BC2EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */; };
 		00806C0821106FE0002BC2EB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0721106FE0002BC2EB /* main.m */; };
 		00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0F21109151002BC2EB /* FunctionListViewController.m */; };
+		00806C182111DA8D002BC2EB /* FHSamplePlayerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00806C172111DA8D002BC2EB /* FHSamplePlayerViewController.xib */; };
+		00806C1C2111DFDC002BC2EB /* FHControlView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00806C1B2111DFDC002BC2EB /* FHControlView.xib */; };
+		00806C1F2111DFEF002BC2EB /* FHControlView.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C1E2111DFEF002BC2EB /* FHControlView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,10 @@
 		00806C0721106FE0002BC2EB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		00806C0E21109151002BC2EB /* FunctionListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FunctionListViewController.h; sourceTree = "<group>"; };
 		00806C0F21109151002BC2EB /* FunctionListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FunctionListViewController.m; sourceTree = "<group>"; };
+		00806C172111DA8D002BC2EB /* FHSamplePlayerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FHSamplePlayerViewController.xib; sourceTree = "<group>"; };
+		00806C1B2111DFDC002BC2EB /* FHControlView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FHControlView.xib; sourceTree = "<group>"; };
+		00806C1D2111DFEF002BC2EB /* FHControlView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHControlView.h; sourceTree = "<group>"; };
+		00806C1E2111DFEF002BC2EB /* FHControlView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHControlView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,10 +93,30 @@
 		00806C1221109296002BC2EB /* 做一个最简单的播放器 */ = {
 			isa = PBXGroup;
 			children = (
-				00806BFB21106FDF002BC2EB /* FHSamplePlayerViewController.h */,
-				00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */,
+				00806C192111DDF5002BC2EB /* Controller */,
+				00806C1A2111DE00002BC2EB /* View */,
 			);
 			path = "做一个最简单的播放器";
+			sourceTree = "<group>";
+		};
+		00806C192111DDF5002BC2EB /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				00806BFB21106FDF002BC2EB /* FHSamplePlayerViewController.h */,
+				00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */,
+				00806C172111DA8D002BC2EB /* FHSamplePlayerViewController.xib */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		00806C1A2111DE00002BC2EB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				00806C1D2111DFEF002BC2EB /* FHControlView.h */,
+				00806C1E2111DFEF002BC2EB /* FHControlView.m */,
+				00806C1B2111DFDC002BC2EB /* FHControlView.xib */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,7 +177,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				00806C0521106FE0002BC2EB /* LaunchScreen.storyboard in Resources */,
+				00806C1C2111DFDC002BC2EB /* FHControlView.xib in Resources */,
 				00806C0221106FE0002BC2EB /* Assets.xcassets in Resources */,
+				00806C182111DA8D002BC2EB /* FHSamplePlayerViewController.xib in Resources */,
 				00806C0021106FDF002BC2EB /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -165,6 +194,7 @@
 				00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */,
 				00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */,
 				00806C0821106FE0002BC2EB /* main.m in Sources */,
+				00806C1F2111DFEF002BC2EB /* FHControlView.m in Sources */,
 				00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

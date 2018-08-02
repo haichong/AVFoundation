@@ -11,11 +11,72 @@
 // 导入AVFoundation框架
 #import <AVFoundation/AVFoundation.h>
 
+#import "FHControlView.h"
+
+
+@interface FHPlayerPresentView : UIView
+
+@property (nonatomic, strong) AVPlayer *player;
+/// default is AVLayerVideoGravityResizeAspect.
+@property (nonatomic, strong) AVLayerVideoGravity videoGravity;
+
+@end
+
+@implementation FHPlayerPresentView
+
+/*
+ + (Class)layerClass;
+ - (AVPlayerLayer *)avLayer;
+ - (void)setPlayer:(AVPlayer *)player;
+ 这三个方法相当于下面的方法
+ [self.layer addSublayer:avPlayerLayer];
+ **/
+
+// 重写+layerClass方法使得在创建的时候能返回一个不同的图层子类。UIView会在初始化的时候调用+layerClass方法，然后用它的返回类型来创建宿主图层
++ (Class)layerClass {
+    return [AVPlayerLayer class];
+}
+
+- (AVPlayerLayer *)avLayer {
+    return (AVPlayerLayer *)self.layer;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor blackColor];
+    }
+    return self;
+}
+
+- (void)setPlayer:(AVPlayer *)player {
+    if (player == _player) return;
+    self.avLayer.player = player;
+}
+
+- (void)setVideoGravity:(AVLayerVideoGravity)videoGravity {
+    if (videoGravity == self.videoGravity) return;
+    [self avLayer].videoGravity = videoGravity;
+}
+
+- (AVLayerVideoGravity)videoGravity {
+    return [self avLayer].videoGravity;
+}
+
+@end
+
+
 @interface FHSamplePlayerViewController ()
 {
     id _timeObserver;
     id _itmePlaybackEndObserver;
 }
+
+
+@property (weak, nonatomic) IBOutlet UIView *containerView;
+@property (strong, nonatomic) FHControlView *controlView;
+@property (strong, nonatomic) FHPlayerPresentView *presentView;
+
 
 // 播放资源：只包含媒体资源的静态信息
 @property (nonatomic, strong) AVURLAsset *asset;
@@ -26,6 +87,13 @@
 // 播放器界面
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 
+// 是否正在播放
+@property (nonatomic, assign) BOOL playing;
+
+@property (nonatomic, strong) NSArray *dataSource;
+
+@property (nonatomic, assign) NSInteger currentIndex;
+
 @end
 
 @implementation FHSamplePlayerViewController
@@ -33,15 +101,43 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor whiteColor];
+    _currentIndex = 0;
+
+    [self initPlayer];
+    [self initUI];
+}
+
+
+- (IBAction)playTheLast:(id)sender {
+
+    _currentIndex--;
+    if (_currentIndex < 0 || self.dataSource.count == 0 || _currentIndex > self.dataSource.count) {
+        return;
+    }
     
+    [self stop];
     [self initPlayer];
 }
 
+- (IBAction)playTheNext:(id)sender {
+    _currentIndex++;
+    
+    if (_currentIndex < 0 || self.dataSource.count == 0) {
+        return;
+    }
+    
+    if ( _currentIndex >= self.dataSource.count) {
+        _currentIndex = 0;
+    }
+    
+    [self stop];
+    [self initPlayer];
+}
+
+
 - (void)initPlayer
 {
-    NSString *strURL = @"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4";
-    NSURL *url = [NSURL URLWithString:strURL];
+    NSURL *url = self.dataSource[_currentIndex];
     AVURLAsset *asset = [AVURLAsset assetWithURL:url];
     self.asset = asset;
     
@@ -61,16 +157,26 @@
     }
     self.player = player;
     
-    AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-    // 适配avLayer的时候，视频的长宽比例不能改变。这样如果视频和avLayer的长宽比例不一致，就会留空白。
-    avLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-    avLayer.frame = self.view.bounds;
     
-    [self.view.layer addSublayer:avLayer];
-    self.playerLayer = avLayer;
+//    AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+//    // 适配avLayer的时候，视频的长宽比例不能改变。这样如果视频和avLayer的长宽比例不一致，就会留空白。
+//    avLayer.videoGravity = AVLayerVideoGravityResizeAspect;
+//    avLayer.frame = self.containerView.bounds;
+//
+//    [self.containerView.layer addSublayer:avLayer];
+ //  self.playerLayer = avLayer;
+    
+    FHPlayerPresentView *presentView = [[FHPlayerPresentView alloc] initWithFrame:self.containerView.bounds];
+    [self.containerView addSubview:presentView];
+    presentView.player = self.player;
+    self.presentView = presentView;
+    
+    [self.containerView insertSubview:self.controlView aboveSubview:self.presentView];
     
     // 播放视频
     [player play];
+    
+    self.playing = YES;
     
     [self addObserver];
 }
@@ -78,6 +184,8 @@
 - (void)stop
 {
     [self.player pause];
+    
+     self.playing = NO;
     
     [self.player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
@@ -109,13 +217,29 @@
         if (loadedRanges.count > 0 && weakSelf.playerItem.duration.timescale != 0) {
             NSLog(@"播放进度 = %.2f",CMTimeGetSeconds(time));
             NSLog(@"视频总时长 = %.2f",CMTimeGetSeconds(weakSelf.playerItem.duration));
+            CGFloat currentTime = CMTimeGetSeconds(time);
+            CGFloat duration = CMTimeGetSeconds(weakSelf.playerItem.duration);
+            weakSelf.controlView.playTimeLabel.text = [weakSelf formatSeconds:currentTime];
+            weakSelf.controlView.totalTimeLabel.text = [weakSelf formatSeconds:duration];
+            weakSelf.controlView.playSlider.value = currentTime / duration;
         }
     }];
     
     // 增加播放结束的监听
     _itmePlaybackEndObserver = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         NSLog(@"本视频播放结束了");
+        // 播放结束之后，播放下一个；列表循环
+        [weakSelf playTheNext:nil];
     }];
+}
+
+- (NSString *)formatSeconds:(CGFloat)seconds
+{
+    NSInteger s = seconds;
+    NSInteger minute = s / 60;
+    NSInteger second = s % 60;
+    
+    return [NSString stringWithFormat:@"%.2ld:%.2ld",minute,second];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
@@ -143,6 +267,9 @@
     
     if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSLog(@"缓冲进度：%.2f",[self loadedTime]);
+        CGFloat loadedTime = [self loadedTime];
+        CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
+        self.controlView.loadedProgress.progress = loadedTime / duration;
 
     }
     
@@ -193,13 +320,50 @@
             return loadedTime;
         }
     }
+    
     return 0;
+}
+
+- (NSArray *)dataSource
+{
+    if (!_dataSource) {
+        _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
+    }
+    
+    return _dataSource;
 }
 
 - (void)dealloc
 {
     [self stop];
     NSLog(@"%@ dealloc",[self class]);
+}
+
+- (void)initUI
+{
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    CGFloat width = self.containerView.bounds.size.width;
+    CGFloat height = width / 7 * 4;
+    FHControlView *controlView = [[FHControlView alloc] initWithFrame:CGRectMake(0, height - 40, width, 40)];
+    [self.containerView addSubview:controlView];
+    self.controlView = controlView;
+    
+    [controlView.playBtn addTarget:self action:@selector(controlAction:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)controlAction:(UIButton *)button
+{
+    if (self.playing) {
+        [self.player pause];
+    }else{
+        [self.player play];
+    }
+    
+    self.playing = !self.playing;
+    
+    NSString *imageName = self.playing ? @"pause" : @"play";
+    [self.controlView.playBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
 }
 
 @end
