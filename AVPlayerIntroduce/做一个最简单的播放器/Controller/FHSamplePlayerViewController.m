@@ -130,8 +130,11 @@
         _currentIndex = 0;
     }
     
+    // 停止播放视频
     [self stop];
     [self initPlayer];
+    
+    [self.player replaceCurrentItemWithPlayerItem:nil];
 }
 
 
@@ -171,6 +174,7 @@
     presentView.player = self.player;
     self.presentView = presentView;
     
+    // 保持containerView在最上层，这样就可以控制视频的播放了。
     [self.containerView insertSubview:self.controlView aboveSubview:self.presentView];
     
     // 播放视频
@@ -183,20 +187,24 @@
 
 - (void)stop
 {
+    // 暂停播放视频
     [self.player pause];
-    
+    // 记录视频的播放状态
      self.playing = NO;
     
+    // 移除观察者
     [self.player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     _itmePlaybackEndObserver = nil;
     
+    // 释放视频相关对象
     self.player = nil;
     self.playerItem = nil;
     self.asset = nil;
     [self.playerLayer removeFromSuperlayer];
     
+    // 移除KVO
     [self removeObserver];
 }
 
@@ -239,7 +247,7 @@
     NSInteger minute = s / 60;
     NSInteger second = s % 60;
     
-    return [NSString stringWithFormat:@"%.2ld:%.2ld",minute,second];
+    return [NSString stringWithFormat:@"%.2ld:%.2ld",(long)minute,(long)second];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
@@ -284,6 +292,7 @@
 
 - (void)removeObserver
 {
+    // 防止删除不存在的观察者，崩溃
     @try{
         [self.playerItem removeObserver:self forKeyPath:@"status"];
         [self.playerItem removeObserver:self forKeyPath:@"presentationSize"];
