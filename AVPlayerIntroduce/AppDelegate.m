@@ -8,6 +8,12 @@
 
 #import "AppDelegate.h"
 
+#import "FHNavigationController.h"
+#import "FHFunctionListViewController.h"
+
+#import "UMCommon/UMCommon.h"
+#import "UMCommonLog/UMCommonLogManager.h"
+#import "UMAnalytics/MobClick.h"
 @interface AppDelegate ()
 
 @end
@@ -16,9 +22,35 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+   
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.window.backgroundColor = [UIColor whiteColor];
+    
+    FHFunctionListViewController *vc = [FHFunctionListViewController new];
+    FHNavigationController *nav = [[FHNavigationController alloc] initWithRootViewController: vc];
+    
+    self.window.rootViewController = nav;
+    
+    [MobClick setScenarioType:E_UM_NORMAL];
+    [MobClick setCrashReportEnabled:YES];
+    [UMConfigure setLogEnabled:YES];
+    [UMConfigure setEncryptEnabled:NO];
+    [UMCommonLogManager setUpUMCommonLogManager];
+    [UMConfigure setLogEnabled:YES];
+    [UMConfigure initWithAppkey:@"5b8512fff29d9851c8000012" channel:@"App Store"];
+
+    
+    NSLog(@"%@",[UMConfigure deviceIDForIntegration]);
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
+
+///// 在这里写支持的旋转方向，为了防止横屏方向，应用启动时候界面变为横屏模式
+//- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+//    return UIInterfaceOrientationMaskAllButUpsideDown;
+//}
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {

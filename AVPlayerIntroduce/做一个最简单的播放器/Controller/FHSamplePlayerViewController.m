@@ -13,12 +13,15 @@
 
 #import "FHControlView.h"
 
+#define SCREEN_WIDTH  UIScreen.mainScreen.bounds.size.width
+#define SCREEN_HEIGHT UIScreen.mainScreen.bounds.size.height
 
 @interface FHPlayerPresentView : UIView
 
 @property (nonatomic, strong) AVPlayer *player;
 /// default is AVLayerVideoGravityResizeAspect.
 @property (nonatomic, strong) AVLayerVideoGravity videoGravity;
+
 
 @end
 
@@ -94,6 +97,8 @@
 
 @property (nonatomic, assign) NSInteger currentIndex;
 
+@property (nonatomic, assign) BOOL isFullScreen;
+
 @end
 
 @implementation FHSamplePlayerViewController
@@ -130,14 +135,11 @@
         _currentIndex = 0;
     }
     
-    // 停止播放视频
     [self stop];
     [self initPlayer];
-    
-    [self.player replaceCurrentItemWithPlayerItem:nil];
 }
 
-
+ // 初始化播放器
 - (void)initPlayer
 {
     NSURL *url = self.dataSource[_currentIndex];
@@ -175,7 +177,8 @@
     self.presentView = presentView;
     
     // 保持containerView在最上层，这样就可以控制视频的播放了。
-    [self.containerView insertSubview:self.controlView aboveSubview:self.presentView];
+    [presentView addSubview:self.controlView];
+    [self updateControlViewConstraint];
     
     // 播放视频
     [player play];
@@ -185,6 +188,7 @@
     [self addObserver];
 }
 
+// 停止播放视频
 - (void)stop
 {
     // 暂停播放视频
@@ -197,6 +201,8 @@
     _timeObserver = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     _itmePlaybackEndObserver = nil;
+    // 移除KVO
+    [self removeObserver];
     
     // 释放视频相关对象
     self.player = nil;
@@ -204,8 +210,6 @@
     self.asset = nil;
     [self.playerLayer removeFromSuperlayer];
     
-    // 移除KVO
-    [self removeObserver];
 }
 
 - (void)addObserver
@@ -223,8 +227,8 @@
         if (!weakSelf) return;
         NSArray *loadedRanges = weakSelf.playerItem.seekableTimeRanges;
         if (loadedRanges.count > 0 && weakSelf.playerItem.duration.timescale != 0) {
-            NSLog(@"播放进度 = %.2f",CMTimeGetSeconds(time));
-            NSLog(@"视频总时长 = %.2f",CMTimeGetSeconds(weakSelf.playerItem.duration));
+//            NSLog(@"播放进度 = %.2f",CMTimeGetSeconds(time));
+//            NSLog(@"视频总时长 = %.2f",CMTimeGetSeconds(weakSelf.playerItem.duration));
             CGFloat currentTime = CMTimeGetSeconds(time);
             CGFloat duration = CMTimeGetSeconds(weakSelf.playerItem.duration);
             weakSelf.controlView.playTimeLabel.text = [weakSelf formatSeconds:currentTime];
@@ -239,6 +243,13 @@
         // 播放结束之后，播放下一个；列表循环
         [weakSelf playTheNext:nil];
     }];
+    
+    // 开启监听设备旋转的通知（不开启的话，设备方向一直是UIInterfaceOrientationUnknown）
+    // ioS11.4.1 不开启也能检测到
+    if (![UIDevice currentDevice].generatesDeviceOrientationNotifications) {
+        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (NSString *)formatSeconds:(CGFloat)seconds
@@ -274,7 +285,7 @@
     }
     
     if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
-        NSLog(@"缓冲进度：%.2f",[self loadedTime]);
+        //NSLog(@"缓冲进度：%.2f",[self loadedTime]);
         CGFloat loadedTime = [self loadedTime];
         CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
         self.controlView.loadedProgress.progress = loadedTime / duration;
@@ -302,6 +313,11 @@
     } @catch(NSException *e){
         NSLog(@"failed to remove observer");
     }
+    
+    if ([UIDevice currentDevice].generatesDeviceOrientationNotifications) {
+        [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 // 获取缓存的进度
@@ -342,6 +358,56 @@
     return _dataSource;
 }
 
+- (void)deviceOrientationDidChange:(NSNotification *)noti
+{
+    // 设备方向
+    UIInterfaceOrientation deviceOrientation =(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
+    // 界面方向
+    UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (deviceOrientation == interfaceOrientation || !UIDeviceOrientationIsValidInterfaceOrientation(deviceOrientation)) {
+        NSLog(@"UIDeviceOrientationUnknown");
+        return;
+    }
+    
+    [self changeInterfaceOrientation:deviceOrientation];
+}
+
+- (void)changeInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    UIView *superView = nil;
+    CGAffineTransform  transform = CGAffineTransformIdentity;
+    
+    if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || interfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+        superView = [[UIApplication sharedApplication] keyWindow];
+        
+        if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
+            transform = CGAffineTransformMakeRotation(-M_PI_2);
+            
+        }else if(interfaceOrientation == UIInterfaceOrientationLandscapeRight){
+            transform = CGAffineTransformMakeRotation(M_PI_2);
+        }
+        self.isFullScreen = YES;
+        
+    }else{
+        superView = self.containerView;
+        transform = CGAffineTransformIdentity;
+        self.isFullScreen = NO;
+    }
+    
+    [superView addSubview:self.presentView];
+    
+    [UIApplication sharedApplication].statusBarOrientation = interfaceOrientation;
+    [self setNeedsStatusBarAppearanceUpdate];
+    [UIView animateWithDuration:0.25 animations:^{
+        self.presentView.transform = transform;
+        [UIView animateWithDuration:0.25 animations:^{
+            self.presentView.frame = superView.bounds;
+        }];
+    }  completion:^(BOOL finished) {
+        [self updateControlViewConstraint];
+    }];
+}
+
 - (void)dealloc
 {
     [self stop];
@@ -351,14 +417,6 @@
 - (void)initUI
 {
     self.view.backgroundColor = [UIColor whiteColor];
-    
-    CGFloat width = self.containerView.bounds.size.width;
-    CGFloat height = width / 7 * 4;
-    FHControlView *controlView = [[FHControlView alloc] initWithFrame:CGRectMake(0, height - 40, width, 40)];
-    [self.containerView addSubview:controlView];
-    self.controlView = controlView;
-    
-    [controlView.playBtn addTarget:self action:@selector(controlAction:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)controlAction:(UIButton *)button
@@ -373,6 +431,68 @@
     
     NSString *imageName = self.playing ? @"pause" : @"play";
     [self.controlView.playBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+}
+
+- (void)fullScreanAction:(UIButton *)button
+{
+    [self changeInterfaceOrientation:self.isFullScreen ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeRight];
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    if (self.isFullScreen) {
+        return UIStatusBarStyleLightContent;
+    }
+    return UIStatusBarStyleDefault;
+}
+
+
+// 界面是否可以跟随手机自动旋转
+// if yes, [UIApplication sharedApplication].statusBarOrientation = deviceOrientation; 设置无效；
+// if yes, - (UIInterfaceOrientationMask)supportedInterfaceOrientations；支持的屏幕方向一定要和Deployment Info -> Device Orientation 一致， 否则会报  Terminating app due to uncaught exception 'UIApplicationInvalidInterfaceOrientation', reason: 'Supported orientations has no common orientation with the application, and [FHNavigationController shouldAutorotate] is returning YES'
+- (BOOL)shouldAutorotate {
+    return NO;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    if (self.isFullScreen) {
+        return UIInterfaceOrientationMaskLandscape;
+    }
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+//- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+//{
+//    return UIInterfaceOrientationLandscapeRight;
+//}
+
+
+- (FHControlView *)controlView
+{
+    if (!_controlView) {
+        _controlView = [[FHControlView alloc] init];
+        [_controlView.playBtn addTarget:self action:@selector(controlAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_controlView.fullScreanBtn addTarget:self action:@selector(fullScreanAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    return _controlView;
+}
+
+- (void)updateControlViewConstraint
+{
+    
+    if (self.isFullScreen) {
+        CGFloat width = self.presentView.bounds.size.width;
+        CGFloat height = self.presentView.bounds.size.height;
+        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
+    }else{
+        CGFloat width = SCREEN_WIDTH;
+        CGFloat height = SCREEN_WIDTH / 7 * 4;
+        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
+    }
+    
+    [self.controlView setNeedsUpdateConstraints];
+    [self.controlView updateConstraintsIfNeeded];
+    
 }
 
 @end

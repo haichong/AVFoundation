@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *totalTimeLabel;
 @property (weak, nonatomic) IBOutlet UIProgressView *loadedProgress;
 @property (weak, nonatomic) IBOutlet UISlider *playSlider;
+@property (weak, nonatomic) IBOutlet UIButton *fullScreanBtn;
 
 
 @end

@@ -9,14 +9,22 @@
 /* Begin PBXBuildFile section */
 		00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BF921106FDF002BC2EB /* AppDelegate.m */; };
 		00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */; };
-		00806C0021106FDF002BC2EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00806BFE21106FDF002BC2EB /* Main.storyboard */; };
 		00806C0221106FE0002BC2EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0121106FE0002BC2EB /* Assets.xcassets */; };
 		00806C0521106FE0002BC2EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */; };
 		00806C0821106FE0002BC2EB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0721106FE0002BC2EB /* main.m */; };
-		00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0F21109151002BC2EB /* FunctionListViewController.m */; };
+		00806C1021109151002BC2EB /* FHFunctionListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C0F21109151002BC2EB /* FHFunctionListViewController.m */; };
 		00806C182111DA8D002BC2EB /* FHSamplePlayerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00806C172111DA8D002BC2EB /* FHSamplePlayerViewController.xib */; };
 		00806C1C2111DFDC002BC2EB /* FHControlView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00806C1B2111DFDC002BC2EB /* FHControlView.xib */; };
 		00806C1F2111DFEF002BC2EB /* FHControlView.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806C1E2111DFEF002BC2EB /* FHControlView.m */; };
+		00D1BC7421340F3D000A5050 /* FHNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00D1BC7321340F3D000A5050 /* FHNavigationController.m */; };
+		00D1BC8B21354C10000A5050 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC8A21354C10000A5050 /* libz.tbd */; };
+		00D1BC8D21354C1D000A5050 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC8C21354C1D000A5050 /* libsqlite3.tbd */; };
+		00D1BC8F21354C2A000A5050 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC8E21354C2A000A5050 /* CoreTelephony.framework */; };
+		00D1BC9121354C30000A5050 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC9021354C30000A5050 /* SystemConfiguration.framework */; };
+		00D1BC9321354D9B000A5050 /* UMCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC9221354D9B000A5050 /* UMCommon.framework */; };
+		00D1BC9521354EDF000A5050 /* UMAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC9421354EDF000A5050 /* UMAnalytics.framework */; };
+		00D1BC9821354EEC000A5050 /* UMCommonLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00D1BC9621354EEC000A5050 /* UMCommonLog.framework */; };
+		00D1BC9921354EEC000A5050 /* UMCommonLog.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 00D1BC9721354EEC000A5050 /* UMCommonLog.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,17 +33,26 @@
 		00806BF921106FDF002BC2EB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		00806BFB21106FDF002BC2EB /* FHSamplePlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHSamplePlayerViewController.h; sourceTree = "<group>"; };
 		00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHSamplePlayerViewController.m; sourceTree = "<group>"; };
-		00806BFF21106FDF002BC2EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		00806C0121106FE0002BC2EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		00806C0421106FE0002BC2EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		00806C0621106FE0002BC2EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00806C0721106FE0002BC2EB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		00806C0E21109151002BC2EB /* FunctionListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FunctionListViewController.h; sourceTree = "<group>"; };
-		00806C0F21109151002BC2EB /* FunctionListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FunctionListViewController.m; sourceTree = "<group>"; };
+		00806C0E21109151002BC2EB /* FHFunctionListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHFunctionListViewController.h; sourceTree = "<group>"; };
+		00806C0F21109151002BC2EB /* FHFunctionListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHFunctionListViewController.m; sourceTree = "<group>"; };
 		00806C172111DA8D002BC2EB /* FHSamplePlayerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FHSamplePlayerViewController.xib; sourceTree = "<group>"; };
 		00806C1B2111DFDC002BC2EB /* FHControlView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FHControlView.xib; sourceTree = "<group>"; };
 		00806C1D2111DFEF002BC2EB /* FHControlView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHControlView.h; sourceTree = "<group>"; };
 		00806C1E2111DFEF002BC2EB /* FHControlView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHControlView.m; sourceTree = "<group>"; };
+		00D1BC7221340F3D000A5050 /* FHNavigationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FHNavigationController.h; sourceTree = "<group>"; };
+		00D1BC7321340F3D000A5050 /* FHNavigationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FHNavigationController.m; sourceTree = "<group>"; };
+		00D1BC8A21354C10000A5050 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		00D1BC8C21354C1D000A5050 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		00D1BC8E21354C2A000A5050 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		00D1BC9021354C30000A5050 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		00D1BC9221354D9B000A5050 /* UMCommon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMCommon.framework; sourceTree = "<group>"; };
+		00D1BC9421354EDF000A5050 /* UMAnalytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMAnalytics.framework; sourceTree = "<group>"; };
+		00D1BC9621354EEC000A5050 /* UMCommonLog.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMCommonLog.framework; sourceTree = "<group>"; };
+		00D1BC9721354EEC000A5050 /* UMCommonLog.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = UMCommonLog.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +60,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00D1BC9321354D9B000A5050 /* UMCommon.framework in Frameworks */,
+				00D1BC9121354C30000A5050 /* SystemConfiguration.framework in Frameworks */,
+				00D1BC8F21354C2A000A5050 /* CoreTelephony.framework in Frameworks */,
+				00D1BC8D21354C1D000A5050 /* libsqlite3.tbd in Frameworks */,
+				00D1BC8B21354C10000A5050 /* libz.tbd in Frameworks */,
+				00D1BC9521354EDF000A5050 /* UMAnalytics.framework in Frameworks */,
+				00D1BC9821354EEC000A5050 /* UMCommonLog.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,6 +78,7 @@
 			children = (
 				00806BF721106FDF002BC2EB /* AVPlayerIntroduce */,
 				00806BF621106FDF002BC2EB /* Products */,
+				00D1BC8921354C10000A5050 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -70,9 +95,11 @@
 			children = (
 				00806BF821106FDF002BC2EB /* AppDelegate.h */,
 				00806BF921106FDF002BC2EB /* AppDelegate.m */,
+				00D1BC7221340F3D000A5050 /* FHNavigationController.h */,
+				00D1BC7321340F3D000A5050 /* FHNavigationController.m */,
 				00806C1121109282002BC2EB /* 功能列表 */,
 				00806C1221109296002BC2EB /* 做一个最简单的播放器 */,
-				00806BFE21106FDF002BC2EB /* Main.storyboard */,
+				00D1BC7521354ABC000A5050 /* Libs */,
 				00806C0121106FE0002BC2EB /* Assets.xcassets */,
 				00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */,
 				00806C0621106FE0002BC2EB /* Info.plist */,
@@ -84,8 +111,8 @@
 		00806C1121109282002BC2EB /* 功能列表 */ = {
 			isa = PBXGroup;
 			children = (
-				00806C0E21109151002BC2EB /* FunctionListViewController.h */,
-				00806C0F21109151002BC2EB /* FunctionListViewController.m */,
+				00806C0E21109151002BC2EB /* FHFunctionListViewController.h */,
+				00806C0F21109151002BC2EB /* FHFunctionListViewController.m */,
 			);
 			path = "功能列表";
 			sourceTree = "<group>";
@@ -117,6 +144,28 @@
 				00806C1B2111DFDC002BC2EB /* FHControlView.xib */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		00D1BC7521354ABC000A5050 /* Libs */ = {
+			isa = PBXGroup;
+			children = (
+				00D1BC9721354EEC000A5050 /* UMCommonLog.bundle */,
+				00D1BC9621354EEC000A5050 /* UMCommonLog.framework */,
+				00D1BC9421354EDF000A5050 /* UMAnalytics.framework */,
+				00D1BC9221354D9B000A5050 /* UMCommon.framework */,
+			);
+			path = Libs;
+			sourceTree = "<group>";
+		};
+		00D1BC8921354C10000A5050 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				00D1BC9021354C30000A5050 /* SystemConfiguration.framework */,
+				00D1BC8E21354C2A000A5050 /* CoreTelephony.framework */,
+				00D1BC8C21354C1D000A5050 /* libsqlite3.tbd */,
+				00D1BC8A21354C10000A5050 /* libz.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -180,7 +229,7 @@
 				00806C1C2111DFDC002BC2EB /* FHControlView.xib in Resources */,
 				00806C0221106FE0002BC2EB /* Assets.xcassets in Resources */,
 				00806C182111DA8D002BC2EB /* FHSamplePlayerViewController.xib in Resources */,
-				00806C0021106FDF002BC2EB /* Main.storyboard in Resources */,
+				00D1BC9921354EEC000A5050 /* UMCommonLog.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,9 +240,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00806C1021109151002BC2EB /* FunctionListViewController.m in Sources */,
+				00806C1021109151002BC2EB /* FHFunctionListViewController.m in Sources */,
 				00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */,
 				00806C0821106FE0002BC2EB /* main.m in Sources */,
+				00D1BC7421340F3D000A5050 /* FHNavigationController.m in Sources */,
 				00806C1F2111DFEF002BC2EB /* FHControlView.m in Sources */,
 				00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */,
 			);
@@ -202,14 +252,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		00806BFE21106FDF002BC2EB /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				00806BFF21106FDF002BC2EB /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		00806C0321106FE0002BC2EB /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -336,7 +378,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = V65K68RFJ2;
+				DEVELOPMENT_TEAM = ZGA994BAL6;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AVPlayerIntroduce/Libs/New\\ Group",
+					"$(PROJECT_DIR)/AVPlayerIntroduce/Libs",
+				);
 				INFOPLIST_FILE = AVPlayerIntroduce/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -354,7 +401,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = V65K68RFJ2;
+				DEVELOPMENT_TEAM = ZGA994BAL6;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AVPlayerIntroduce/Libs/New\\ Group",
+					"$(PROJECT_DIR)/AVPlayerIntroduce/Libs",
+				);
 				INFOPLIST_FILE = AVPlayerIntroduce/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
