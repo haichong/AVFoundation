@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -14,6 +13,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FHSamplePlayerViewController">
             <connections>
                 <outlet property="containerView" destination="9Il-m4-RCZ" id="7Jq-3O-lCj"/>
+                <outlet property="titleLabel" destination="csT-Q0-JKd" id="Pi5-jx-EWW"/>
                 <outlet property="view" destination="iN0-l3-epB" id="Rty-wO-kZW"/>
             </connections>
         </placeholder>
@@ -51,14 +51,22 @@
                         <action selector="playTheNext:" destination="-1" eventType="touchUpInside" id="u7O-GY-6m7"/>
                     </connections>
                 </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="视频1" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="csT-Q0-JKd">
+                    <rect key="frame" x="166.5" y="79" width="42" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="td5-gY-a1g" secondAttribute="bottom" constant="100" id="4Fz-2d-1fp"/>
                 <constraint firstItem="9Il-m4-RCZ" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="100" id="CLb-CM-5K4"/>
                 <constraint firstItem="9Il-m4-RCZ" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="Cx2-bT-Xfh"/>
+                <constraint firstItem="csT-Q0-JKd" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="Ml2-9a-zq8"/>
                 <constraint firstItem="rk1-Dm-BwR" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="100" id="Tq2-TN-gMD"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="rk1-Dm-BwR" secondAttribute="bottom" constant="100" id="Z5g-Jz-MCI"/>
+                <constraint firstItem="9Il-m4-RCZ" firstAttribute="top" secondItem="csT-Q0-JKd" secondAttribute="bottom" constant="20" id="ax7-fG-eZI"/>
                 <constraint firstItem="9Il-m4-RCZ" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="j7f-ZQ-3iV"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="td5-gY-a1g" secondAttribute="trailing" constant="100" id="paq-hc-T5i"/>
             </constraints>

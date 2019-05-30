@@ -36,33 +36,40 @@
  **/
 
 // 重写+layerClass方法使得在创建的时候能返回一个不同的图层子类。UIView会在初始化的时候调用+layerClass方法，然后用它的返回类型来创建宿主图层
-+ (Class)layerClass {
++ (Class)layerClass
+{
     return [AVPlayerLayer class];
 }
 
-- (AVPlayerLayer *)avLayer {
+- (AVPlayerLayer *)avLayer
+{
     return (AVPlayerLayer *)self.layer;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
-    if (self) {
+    if (self)
+    {
         self.backgroundColor = [UIColor blackColor];
     }
     return self;
 }
 
-- (void)setPlayer:(AVPlayer *)player {
-    if (player == _player) return;
+- (void)setPlayer:(AVPlayer *)player
+{
+    if (player == _player) {return;}
     self.avLayer.player = player;
 }
 
-- (void)setVideoGravity:(AVLayerVideoGravity)videoGravity {
-    if (videoGravity == self.videoGravity) return;
+- (void)setVideoGravity:(AVLayerVideoGravity)videoGravity
+{
+    if (videoGravity == self.videoGravity) {return;}
     [self avLayer].videoGravity = videoGravity;
 }
 
-- (AVLayerVideoGravity)videoGravity {
+- (AVLayerVideoGravity)videoGravity
+{
     return [self avLayer].videoGravity;
 }
 
@@ -79,6 +86,8 @@
 @property (weak, nonatomic) IBOutlet UIView *containerView;
 @property (strong, nonatomic) FHControlView *controlView;
 @property (strong, nonatomic) FHPlayerPresentView *presentView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
 
 
 // 播放资源：只包含媒体资源的静态信息
@@ -103,7 +112,8 @@
 
 @implementation FHSamplePlayerViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     _currentIndex = 0;
@@ -113,25 +123,24 @@
 }
 
 
-- (IBAction)playTheLast:(id)sender {
+- (IBAction)playTheLast:(id)sender
+{
 
     _currentIndex--;
-    if (_currentIndex < 0 || self.dataSource.count == 0 || _currentIndex > self.dataSource.count) {
-        return;
-    }
+    if (_currentIndex < 0 || self.dataSource.count == 0 || _currentIndex >= self.dataSource.count){return;}
     
     [self stop];
     [self initPlayer];
 }
 
-- (IBAction)playTheNext:(id)sender {
+- (IBAction)playTheNext:(id)sender
+{
     _currentIndex++;
     
-    if (_currentIndex < 0 || self.dataSource.count == 0) {
-        return;
-    }
+    if (_currentIndex < 0 || self.dataSource.count == 0) {return;}
     
-    if ( _currentIndex >= self.dataSource.count) {
+    if ( _currentIndex >= self.dataSource.count)
+    {
         _currentIndex = 0;
     }
     
@@ -142,6 +151,8 @@
  // 初始化播放器
 - (void)initPlayer
 {
+    self.titleLabel.text = [NSString stringWithFormat:@"视频%zd",_currentIndex + 1];
+    
     NSURL *url = self.dataSource[_currentIndex];
     AVURLAsset *asset = [AVURLAsset assetWithURL:url];
     self.asset = asset;
@@ -149,14 +160,16 @@
     AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:asset];
     // 暂停的时候不能继续缓冲
     item.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 10.0, *))
+    {
         // 提前缓冲1s
         item.preferredForwardBufferDuration = 1.0;
     }
     self.playerItem = item;
     
     AVPlayer *player = [AVPlayer playerWithPlayerItem:item];
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 10.0, *))
+    {
         // 网络不好的时候，不允许降低播放速度
         player.automaticallyWaitsToMinimizeStalling = NO;
     }
@@ -180,12 +193,17 @@
     [presentView addSubview:self.controlView];
     [self updateControlViewConstraint];
     
-    // 播放视频
-    [player play];
+    [self play];
     
     self.playing = YES;
     
     [self addObserver];
+}
+
+// 播放视频
+- (void)play
+{
+    [self.player play];
 }
 
 // 停止播放视频
@@ -265,13 +283,19 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
     
-    if ([keyPath isEqualToString:@"status"]) {
-        switch (self.playerItem.status) {
+    if ([keyPath isEqualToString:@"status"])
+    {
+        switch (self.playerItem.status)
+        {
             case AVPlayerItemStatusUnknown:
                 NSLog(@"未知的播放状态");
                 break;
             case AVPlayerItemStatusReadyToPlay:
                 NSLog(@"马上可以播放了");
+                if (self.playing)
+                {
+                    [self play];
+                }
                 break;
             case AVPlayerItemStatusFailed:
                 NSLog(@"发生错误：%@",self.player.error);
@@ -281,11 +305,13 @@
         }
     }
     
-    if ([keyPath isEqualToString:@"presentationSize"]) {
+    if ([keyPath isEqualToString:@"presentationSize"])
+    {
         NSLog(@"视频的尺寸：%@",NSStringFromCGSize(self.playerItem.presentationSize));
     }
     
-    if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
+    if ([keyPath isEqualToString:@"loadedTimeRanges"])
+    {
         //NSLog(@"缓冲进度：%.2f",[self loadedTime]);
         CGFloat loadedTime = [self loadedTime];
         CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
@@ -293,22 +319,22 @@
 
     }
     
-    if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
+    if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"])
+    {
         NSLog(@"%@可以正常播放",self.playerItem.playbackLikelyToKeepUp ? @"" : @"不");
         
         // 当由于某种原因（eg，没有缓冲）不能继续播放了，视频会自动暂停
         // 但当有缓冲的时候却不会自动播放，所有我们要让视频继续播放
-        if (self.playerItem.playbackLikelyToKeepUp) {
-            [self.player play];
-            self.playing = YES;
-        }else{
-            [self.player pause];
-            self.playing = NO;
+        if (self.playerItem.playbackLikelyToKeepUp && self.playing)
+        {
+            [self play];
         }
     }
     
-    if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
+    if ([keyPath isEqualToString:@"playbackBufferEmpty"])
+    {
         NSLog(@"%@有缓冲",self.playerItem.playbackBufferEmpty ? @"没": @"");
+        [self buffingSomeSeconds];
     }
 }
 
@@ -358,6 +384,24 @@
     }
     
     return 0;
+}
+
+// 当网络不好的时候，会多次调用这里，
+- (void)buffingSomeSeconds
+{
+    // 需要先暂停一小会之后再播放，否则网络状况不好的时候时间在走，声音播放不出来
+    [self.player pause];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 如果此时用户已经暂停了，则不再需要开启播放了
+        if (!self.playing) {return;}
+        
+        [self play];
+        // 如果执行了play还是没有播放则说明还没有缓存好，则再次缓存一段时间
+        if (!self.playerItem.isPlaybackLikelyToKeepUp)
+        {
+            [self buffingSomeSeconds];
+        }
+    });
 }
 
 - (NSArray *)dataSource
@@ -473,7 +517,7 @@
     if (self.playing) {
         [self.player pause];
     }else{
-        [self.player play];
+        [self play];
     }
     
     self.playing = !self.playing;
