@@ -202,6 +202,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     _itmePlaybackEndObserver = nil;
     // 移除KVO
+    // 必须先移除KVO，在释放playerItem，否则多初始化几次播放器，就会崩溃，而且没有错误日志。
     [self removeObserver];
     
     // 释放视频相关对象
@@ -294,6 +295,16 @@
     
     if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
         NSLog(@"%@可以正常播放",self.playerItem.playbackLikelyToKeepUp ? @"" : @"不");
+        
+        // 当由于某种原因（eg，没有缓冲）不能继续播放了，视频会自动暂停
+        // 但当有缓冲的时候却不会自动播放，所有我们要让视频继续播放
+        if (self.playerItem.playbackLikelyToKeepUp) {
+            [self.player play];
+            self.playing = YES;
+        }else{
+            [self.player pause];
+            self.playing = NO;
+        }
     }
     
     if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
@@ -360,6 +371,7 @@
 
 - (void)deviceOrientationDidChange:(NSNotification *)noti
 {
+    NSLog(@"%ld",(long)[[UIDevice currentDevice] orientation]);
     // 设备方向
     UIInterfaceOrientation deviceOrientation =(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
     // 界面方向
@@ -372,23 +384,32 @@
     [self changeInterfaceOrientation:deviceOrientation];
 }
 
+// 旋转屏幕，interfaceOrientation要旋转的方向
 - (void)changeInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
+    // 父视图
     UIView *superView = nil;
+    // 旋转的角度，默认值是恢复原来的样式
     CGAffineTransform  transform = CGAffineTransformIdentity;
     
+    // 竖屏 -> 横屏
     if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft || interfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+        // 父视图是keyWindow
         superView = [[UIApplication sharedApplication] keyWindow];
         
+        // HOME键在左边，逆时针旋转90°
         if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
             transform = CGAffineTransformMakeRotation(-M_PI_2);
             
         }else if(interfaceOrientation == UIInterfaceOrientationLandscapeRight){
+             // HOME键在右边，顺时针旋转90°
             transform = CGAffineTransformMakeRotation(M_PI_2);
         }
+        // 记录界面的状态
         self.isFullScreen = YES;
         
     }else{
+        // 横屏 -> 竖屏
         superView = self.containerView;
         transform = CGAffineTransformIdentity;
         self.isFullScreen = NO;
@@ -396,16 +417,44 @@
     
     [superView addSubview:self.presentView];
     
+    // 修改界面的方向
     [UIApplication sharedApplication].statusBarOrientation = interfaceOrientation;
+    // 标记界面的方向需要更改
     [self setNeedsStatusBarAppearanceUpdate];
+    
+    // 旋转动画
     [UIView animateWithDuration:0.25 animations:^{
+        // 旋转
         self.presentView.transform = transform;
         [UIView animateWithDuration:0.25 animations:^{
+            // 修改尺寸
             self.presentView.frame = superView.bounds;
         }];
     }  completion:^(BOOL finished) {
+        // 修改控制视图的约束
         [self updateControlViewConstraint];
     }];
+}
+
+- (void)updateControlViewConstraint
+{
+    // 当屏幕旋转后，屏幕的长宽也发生了变化，现在长的值变为了原来的宽的值
+    if (self.isFullScreen) {
+        CGFloat width = self.presentView.bounds.size.width;
+        CGFloat height = self.presentView.bounds.size.height;
+        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
+    }else{
+        CGFloat width = SCREEN_WIDTH;
+        CGFloat height = SCREEN_WIDTH / 7 * 4;
+        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
+    }
+    
+    // 如果不执行下面的两个方法， 上面的设置无效
+    // 标记更新约束
+    [self.controlView setNeedsUpdateConstraints];
+    // 更新约束
+    [self.controlView updateConstraintsIfNeeded];
+    
 }
 
 - (void)dealloc
@@ -475,24 +524,6 @@
     }
     
     return _controlView;
-}
-
-- (void)updateControlViewConstraint
-{
-    
-    if (self.isFullScreen) {
-        CGFloat width = self.presentView.bounds.size.width;
-        CGFloat height = self.presentView.bounds.size.height;
-        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
-    }else{
-        CGFloat width = SCREEN_WIDTH;
-        CGFloat height = SCREEN_WIDTH / 7 * 4;
-        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
-    }
-    
-    [self.controlView setNeedsUpdateConstraints];
-    [self.controlView updateConstraintsIfNeeded];
-    
 }
 
 @end

@@ -37,7 +37,7 @@
 // 是否支持屏幕旋转
 - (BOOL)shouldAutorotate
 {
-    return [[self.viewControllers lastObject] shouldAutorotate];
+    return YES;//[[self.viewControllers lastObject] shouldAutorotate];
 }
 
 // 支持的屏幕旋转的方向
