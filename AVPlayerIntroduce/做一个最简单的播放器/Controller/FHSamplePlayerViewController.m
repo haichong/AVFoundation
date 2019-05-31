@@ -420,7 +420,8 @@
     UIInterfaceOrientation deviceOrientation =(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
     // 界面方向
     UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (deviceOrientation == interfaceOrientation || !UIDeviceOrientationIsValidInterfaceOrientation(deviceOrientation)) {
+    if (deviceOrientation == interfaceOrientation || !UIInterfaceOrientationIsPortrait(deviceOrientation))
+    {
         NSLog(@"UIDeviceOrientationUnknown");
         return;
     }
@@ -462,10 +463,13 @@
     [superView addSubview:self.presentView];
     
     // 修改界面的方向
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [UIApplication sharedApplication].statusBarOrientation = interfaceOrientation;
+#pragma clang diagnostic pop
     // 标记界面的方向需要更改
     [self setNeedsStatusBarAppearanceUpdate];
-    
+
     // 旋转动画
     [UIView animateWithDuration:0.25 animations:^{
         // 旋转
@@ -483,11 +487,14 @@
 - (void)updateControlViewConstraint
 {
     // 当屏幕旋转后，屏幕的长宽也发生了变化，现在长的值变为了原来的宽的值
-    if (self.isFullScreen) {
+    if (self.isFullScreen)
+    {
         CGFloat width = self.presentView.bounds.size.width;
         CGFloat height = self.presentView.bounds.size.height;
         self.controlView.frame = CGRectMake(0, height - 40, width, 40);
-    }else{
+    }
+    else
+    {
         CGFloat width = SCREEN_WIDTH;
         CGFloat height = SCREEN_WIDTH / 7 * 4;
         self.controlView.frame = CGRectMake(0, height - 40, width, 40);
@@ -501,22 +508,14 @@
     
 }
 
-- (void)dealloc
-{
-    [self stop];
-    NSLog(@"%@ dealloc",[self class]);
-}
-
-- (void)initUI
-{
-    self.view.backgroundColor = [UIColor whiteColor];
-}
-
 - (void)controlAction:(UIButton *)button
 {
-    if (self.playing) {
+    if (self.playing)
+    {
         [self.player pause];
-    }else{
+    }
+    else
+    {
         [self play];
     }
     
@@ -531,33 +530,11 @@
     [self changeInterfaceOrientation:self.isFullScreen ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeRight];
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle {
-    if (self.isFullScreen) {
-        return UIStatusBarStyleLightContent;
-    }
-    return UIStatusBarStyleDefault;
+
+- (void)initUI
+{
+    self.view.backgroundColor = [UIColor whiteColor];
 }
-
-
-// 界面是否可以跟随手机自动旋转
-// if yes, [UIApplication sharedApplication].statusBarOrientation = deviceOrientation; 设置无效；
-// if yes, - (UIInterfaceOrientationMask)supportedInterfaceOrientations；支持的屏幕方向一定要和Deployment Info -> Device Orientation 一致， 否则会报  Terminating app due to uncaught exception 'UIApplicationInvalidInterfaceOrientation', reason: 'Supported orientations has no common orientation with the application, and [FHNavigationController shouldAutorotate] is returning YES'
-- (BOOL)shouldAutorotate {
-    return NO;
-}
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    if (self.isFullScreen) {
-        return UIInterfaceOrientationMaskLandscape;
-    }
-    return UIInterfaceOrientationMaskPortrait;
-}
-
-//- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
-//{
-//    return UIInterfaceOrientationLandscapeRight;
-//}
-
 
 - (FHControlView *)controlView
 {
@@ -568,6 +545,31 @@
     }
     
     return _controlView;
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    if (self.isFullScreen)
+    {
+        return UIStatusBarStyleLightContent;
+    }
+    
+    return UIStatusBarStyleDefault;
+}
+
+
+// 是否支持屏幕旋转
+// if yes, [UIApplication sharedApplication].statusBarOrientation = deviceOrientation; 设置无效；
+// if yes, - (UIInterfaceOrientationMask)supportedInterfaceOrientations；支持的屏幕方向一定要和Deployment Info -> Device Orientation 一致， 否则会报  Terminating app due to uncaught exception 'UIApplicationInvalidInterfaceOrientation', reason: 'Supported orientations has no common orientation with the application, and [FHNavigationController shouldAutorotate] is returning YES'
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (void)dealloc
+{
+    [self stop];
+    NSLog(@"%@ dealloc",[self class]);
 }
 
 @end

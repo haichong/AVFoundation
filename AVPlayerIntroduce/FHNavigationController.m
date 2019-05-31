@@ -17,6 +17,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -25,30 +27,29 @@
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
+  修改[UIApplication sharedApplication].statusBarOrientation = interfaceOrientation;设置无效的bug
+ 如果window.rootViewController是一个容器视图，例如UINavigationController，UITabBarController,默认走的是容器视图下面的方法，我们要设置成走对应视图的方法。
+ **/
 // 是否支持屏幕旋转
-- (BOOL)shouldAutorotate
-{
-    return YES;//[[self.viewControllers lastObject] shouldAutorotate];
+- (BOOL)shouldAutorotate {
+    return [self.topViewController shouldAutorotate];
 }
 
-// 支持的屏幕旋转的方向
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
-{
-    return [[self.viewControllers lastObject] supportedInterfaceOrientations];
+// 支持的屏幕旋转方向
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return [self.topViewController supportedInterfaceOrientations];
 }
 
--(UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
-    return [[self.viewControllers lastObject] preferredInterfaceOrientationForPresentation];
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return [self.topViewController preferredInterfaceOrientationForPresentation];
 }
 
+- (UIViewController *)childViewControllerForStatusBarStyle {
+    return self.topViewController;
+}
+
+- (UIViewController *)childViewControllerForStatusBarHidden {
+    return self.topViewController;
+}
 
 @end
