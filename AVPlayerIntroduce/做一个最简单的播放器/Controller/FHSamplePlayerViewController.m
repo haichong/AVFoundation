@@ -107,6 +107,9 @@
 
 @property (nonatomic, assign) BOOL isFullScreen;
 
+@property (nonatomic, assign) BOOL isDragging;
+
+
 @end
 
 @implementation FHSamplePlayerViewController
@@ -119,13 +122,6 @@
 
     [self initPlayer];
     [self initUI];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    [self stop];
 }
 
 // 初始化播放器
@@ -181,6 +177,7 @@
     self.titleLabel.text = [NSString stringWithFormat:@"视频%zd",_currentIndex + 1];
     self.playing = YES;
     [self.player play];
+    [self updateControlViewPlayStatus];
 }
 
 // 停止播放视频
@@ -230,13 +227,17 @@
         NSArray *loadedRanges = weakSelf.playerItem.seekableTimeRanges;
         if (loadedRanges.count > 0 && weakSelf.playerItem.duration.timescale != 0)
         {
-            // 播放的时间
-            CGFloat currentTime = CMTimeGetSeconds(time);
-            // 视频总长度
-            CGFloat duration = CMTimeGetSeconds(weakSelf.playerItem.duration);
-            weakSelf.controlView.playTimeLabel.text = [weakSelf formatSeconds:currentTime];
-            weakSelf.controlView.totalTimeLabel.text = [weakSelf formatSeconds:duration];
-            weakSelf.controlView.playSlider.value = currentTime / duration;
+            if (!weakSelf.isDragging)
+            {
+                // 播放的时间
+                CGFloat currentTime = CMTimeGetSeconds(time);
+                // 视频总长度
+                CGFloat duration = CMTimeGetSeconds(weakSelf.playerItem.duration);
+                weakSelf.controlView.playTimeLabel.text = [weakSelf formatSeconds:currentTime];
+                weakSelf.controlView.totalTimeLabel.text = [weakSelf formatSeconds:duration];
+                 weakSelf.controlView.playSlider.value = currentTime / duration;
+            }
+           
         }
     }];
     
@@ -292,7 +293,7 @@
         //NSLog(@"缓冲进度：%.2f",[self loadedTime]);
         CGFloat loadedTime = [self loadedTime];
         CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
-        self.controlView.loadedProgress.progress = loadedTime / duration;
+         self.controlView.loadedProgress.progress = loadedTime / duration;
     }
     
     if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"])
@@ -310,7 +311,10 @@
     if ([keyPath isEqualToString:@"playbackBufferEmpty"])
     {
         NSLog(@"%@有缓冲",self.playerItem.playbackBufferEmpty ? @"没": @"");
-        [self buffingSomeSeconds];
+        if (self.playerItem.playbackBufferEmpty)
+        {
+            [self buffingSomeSeconds];
+        }
     }
 }
 
@@ -412,19 +416,29 @@
     return _dataSource;
 }
 
+// 控制视频播放
 - (void)controlAction:(UIButton *)button
 {
-    if (self.playing)
+    // 记录播放的状态
+    self.playing = !self.playing;
+    // 如果视频正在播放，暂停；否则，播放。
+    if (!self.playing)
     {
+        // 暂停
         [self.player pause];
     }
     else
     {
+        //播放
         [self play];
     }
     
-    self.playing = !self.playing;
-    
+    [self updateControlViewPlayStatus];
+}
+
+- (void)updateControlViewPlayStatus
+{
+    // 修改button的图标
     NSString *imageName = self.playing ? @"pause" : @"play";
     [self.controlView.playBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
 }
@@ -515,12 +529,28 @@
     [self.controlView updateConstraintsIfNeeded];
 }
 
+// 记录用户拖动的状态，当用户拖动的时候不更新播放进度
+- (void)sliderStartDraggingAction:(UISlider *)slider
+{
+    self.isDragging = YES;
+}
+
+// 用户拖动结束，跳转播放进度
 - (void)seekToPlayerTimeAction:(UISlider *)slider
 {
-    NSLog(@"---------%f",slider.value);
     CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
+    
+    // 没准备好播放，不允许跳转播放进度
+    if (duration == 0) {return;}
     CGFloat seekTime = duration *slider.value;
-    [self.player seekToTime:CMTimeMakeWithSeconds(seekTime, NSEC_PER_SEC)];
+    [self.player seekToTime:CMTimeMakeWithSeconds(seekTime, NSEC_PER_SEC) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+        if (finished)
+        {
+            [self play];
+            self.isDragging = NO;
+        }
+        
+    }];
 }
 
 - (void)initUI
@@ -535,7 +565,9 @@
         _controlView = [[FHControlView alloc] init];
         [_controlView.playBtn addTarget:self action:@selector(controlAction:) forControlEvents:UIControlEventTouchUpInside];
         [_controlView.fullScreanBtn addTarget:self action:@selector(fullScreanAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_controlView.playSlider addTarget:self action:@selector(sliderStartDraggingAction:) forControlEvents:UIControlEventTouchDragInside];
         [_controlView.playSlider addTarget:self action:@selector(seekToPlayerTimeAction:) forControlEvents:UIControlEventValueChanged];
+
     }
     
     return _controlView;
@@ -562,6 +594,7 @@
 
 - (void)dealloc
 {
+    [self stop];
     NSLog(@"%@ dealloc",[self class]);
 }
 
