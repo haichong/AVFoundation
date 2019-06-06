@@ -82,7 +82,6 @@
     id _itmePlaybackEndObserver;
 }
 
-
 @property (weak, nonatomic) IBOutlet UIView *containerView;
 @property (strong, nonatomic) FHControlView *controlView;
 @property (strong, nonatomic) FHPlayerPresentView *presentView;
@@ -122,37 +121,16 @@
     [self initUI];
 }
 
-
-- (IBAction)playTheLast:(id)sender
+- (void)viewWillDisappear:(BOOL)animated
 {
-
-    _currentIndex--;
-    if (_currentIndex < 0 || self.dataSource.count == 0 || _currentIndex >= self.dataSource.count){return;}
+    [super viewWillAppear:animated];
     
     [self stop];
-    [self initPlayer];
 }
 
-- (IBAction)playTheNext:(id)sender
-{
-    _currentIndex++;
-    
-    if (_currentIndex < 0 || self.dataSource.count == 0) {return;}
-    
-    if ( _currentIndex >= self.dataSource.count)
-    {
-        _currentIndex = 0;
-    }
-    
-    [self stop];
-    [self initPlayer];
-}
-
- // 初始化播放器
+// 初始化播放器
 - (void)initPlayer
 {
-    self.titleLabel.text = [NSString stringWithFormat:@"视频%zd",_currentIndex + 1];
-    
     NSURL *url = self.dataSource[_currentIndex];
     AVURLAsset *asset = [AVURLAsset assetWithURL:url];
     self.asset = asset;
@@ -162,8 +140,8 @@
     item.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
     if (@available(iOS 10.0, *))
     {
-        // 提前缓冲1s
-        item.preferredForwardBufferDuration = 1.0;
+        // 提前缓冲10s
+        item.preferredForwardBufferDuration = 10.0;
     }
     self.playerItem = item;
     
@@ -176,13 +154,13 @@
     self.player = player;
     
     
-//    AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-//    // 适配avLayer的时候，视频的长宽比例不能改变。这样如果视频和avLayer的长宽比例不一致，就会留空白。
-//    avLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-//    avLayer.frame = self.containerView.bounds;
-//
-//    [self.containerView.layer addSublayer:avLayer];
- //  self.playerLayer = avLayer;
+    //    AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    //    // 适配avLayer的时候，视频的长宽比例不能改变。这样如果视频和avLayer的长宽比例不一致，就会留空白。
+    //    avLayer.videoGravity = AVLayerVideoGravityResizeAspect;
+    //    avLayer.frame = self.containerView.bounds;
+    //
+    //    [self.containerView.layer addSublayer:avLayer];
+    //  self.playerLayer = avLayer;
     
     FHPlayerPresentView *presentView = [[FHPlayerPresentView alloc] initWithFrame:self.containerView.bounds];
     [self.containerView addSubview:presentView];
@@ -194,15 +172,14 @@
     [self updateControlViewConstraint];
     
     [self play];
-    
-    self.playing = YES;
-    
     [self addObserver];
 }
 
 // 播放视频
 - (void)play
 {
+    self.titleLabel.text = [NSString stringWithFormat:@"视频%zd",_currentIndex + 1];
+    self.playing = YES;
     [self.player play];
 }
 
@@ -212,13 +189,18 @@
     // 暂停播放视频
     [self.player pause];
     // 记录视频的播放状态
-     self.playing = NO;
+    self.playing = NO;
     
     // 移除观察者
     [self.player removeTimeObserver:_timeObserver];
+    // 一定要取消player的当前PlayerItem，负责会造成内存泄漏，且没有提示
+    // 多次切换PlayerItem就会崩溃
+    [self.player replaceCurrentItemWithPlayerItem:nil];
     _timeObserver = nil;
+   
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
-    _itmePlaybackEndObserver = nil;
+     _itmePlaybackEndObserver = nil;
+   
     // 移除KVO
     // 必须先移除KVO，在释放playerItem，否则多初始化几次播放器，就会崩溃，而且没有错误日志。
     [self removeObserver];
@@ -239,16 +221,18 @@
     [self.playerItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
     [self.playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
     
+    // 表示0.5s
     CMTime interval = CMTimeMakeWithSeconds(0.5, NSEC_PER_SEC);
-    __weak FHSamplePlayerViewController *weakSelf= self;
+    __weak typeof(self) weakSelf = self;
     // 增加播放进度的监听 每0.5秒调用一次
     _timeObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
         if (!weakSelf) return;
         NSArray *loadedRanges = weakSelf.playerItem.seekableTimeRanges;
-        if (loadedRanges.count > 0 && weakSelf.playerItem.duration.timescale != 0) {
-//            NSLog(@"播放进度 = %.2f",CMTimeGetSeconds(time));
-//            NSLog(@"视频总时长 = %.2f",CMTimeGetSeconds(weakSelf.playerItem.duration));
+        if (loadedRanges.count > 0 && weakSelf.playerItem.duration.timescale != 0)
+        {
+            // 播放的时间
             CGFloat currentTime = CMTimeGetSeconds(time);
+            // 视频总长度
             CGFloat duration = CMTimeGetSeconds(weakSelf.playerItem.duration);
             weakSelf.controlView.playTimeLabel.text = [weakSelf formatSeconds:currentTime];
             weakSelf.controlView.totalTimeLabel.text = [weakSelf formatSeconds:duration];
@@ -262,13 +246,6 @@
         // 播放结束之后，播放下一个；列表循环
         [weakSelf playTheNext:nil];
     }];
-    
-    // 开启监听设备旋转的通知（不开启的话，设备方向一直是UIInterfaceOrientationUnknown）
-    // ioS11.4.1 不开启也能检测到
-    if (![UIDevice currentDevice].generatesDeviceOrientationNotifications) {
-        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    }
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 - (NSString *)formatSeconds:(CGFloat)seconds
@@ -316,7 +293,6 @@
         CGFloat loadedTime = [self loadedTime];
         CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
         self.controlView.loadedProgress.progress = loadedTime / duration;
-
     }
     
     if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"])
@@ -350,15 +326,11 @@
     } @catch(NSException *e){
         NSLog(@"failed to remove observer");
     }
-    
-    if ([UIDevice currentDevice].generatesDeviceOrientationNotifications) {
-        [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
-    }
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 // 获取缓存的进度
-- (NSTimeInterval)loadedTime {
+- (NSTimeInterval)loadedTime
+{
     
     NSArray *timeRanges = _playerItem.loadedTimeRanges;
     // 播放的进度
@@ -404,29 +376,62 @@
     });
 }
 
+
+- (IBAction)playTheLast:(id)sender
+{
+    _currentIndex--;
+    if (_currentIndex < 0 || self.dataSource.count == 0 || _currentIndex >= self.dataSource.count){return;}
+    
+    [self stop];
+    [self initPlayer];
+}
+
+- (IBAction)playTheNext:(id)sender
+{
+    _currentIndex++;
+    
+    if (_currentIndex < 0 || self.dataSource.count == 0) {return;}
+    
+    if ( _currentIndex >= self.dataSource.count)
+    {
+        _currentIndex = 0;
+    }
+    
+    [self stop];
+    [self initPlayer];
+}
+
+
 - (NSArray *)dataSource
 {
-    if (!_dataSource) {
+    if (!_dataSource)
+    {
         _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
     }
     
     return _dataSource;
 }
 
-- (void)deviceOrientationDidChange:(NSNotification *)noti
+- (void)controlAction:(UIButton *)button
 {
-    NSLog(@"%ld",(long)[[UIDevice currentDevice] orientation]);
-    // 设备方向
-    UIInterfaceOrientation deviceOrientation =(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
-    // 界面方向
-    UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (deviceOrientation == interfaceOrientation || !UIInterfaceOrientationIsPortrait(deviceOrientation))
+    if (self.playing)
     {
-        NSLog(@"UIDeviceOrientationUnknown");
-        return;
+        [self.player pause];
+    }
+    else
+    {
+        [self play];
     }
     
-    [self changeInterfaceOrientation:deviceOrientation];
+    self.playing = !self.playing;
+    
+    NSString *imageName = self.playing ? @"pause" : @"play";
+    [self.controlView.playBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+}
+
+- (void)fullScreanAction:(UIButton *)button
+{
+    [self changeInterfaceOrientation:self.isFullScreen ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeRight];
 }
 
 // 旋转屏幕，interfaceOrientation要旋转的方向
@@ -447,7 +452,7 @@
             transform = CGAffineTransformMakeRotation(-M_PI_2);
             
         }else if(interfaceOrientation == UIInterfaceOrientationLandscapeRight){
-             // HOME键在右边，顺时针旋转90°
+            // HOME键在右边，顺时针旋转90°
             transform = CGAffineTransformMakeRotation(M_PI_2);
         }
         // 记录界面的状态
@@ -465,11 +470,14 @@
     // 修改界面的方向
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    /*
+     * 设置- (BOOL)shouldAutorotate{return NO;}才有效
+     */
     [UIApplication sharedApplication].statusBarOrientation = interfaceOrientation;
 #pragma clang diagnostic pop
     // 标记界面的方向需要更改
     [self setNeedsStatusBarAppearanceUpdate];
-
+    
     // 旋转动画
     [UIView animateWithDuration:0.25 animations:^{
         // 旋转
@@ -505,31 +513,15 @@
     [self.controlView setNeedsUpdateConstraints];
     // 更新约束
     [self.controlView updateConstraintsIfNeeded];
-    
 }
 
-- (void)controlAction:(UIButton *)button
+- (void)seekToPlayerTimeAction:(UISlider *)slider
 {
-    if (self.playing)
-    {
-        [self.player pause];
-    }
-    else
-    {
-        [self play];
-    }
-    
-    self.playing = !self.playing;
-    
-    NSString *imageName = self.playing ? @"pause" : @"play";
-    [self.controlView.playBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+    NSLog(@"---------%f",slider.value);
+    CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
+    CGFloat seekTime = duration *slider.value;
+    [self.player seekToTime:CMTimeMakeWithSeconds(seekTime, NSEC_PER_SEC)];
 }
-
-- (void)fullScreanAction:(UIButton *)button
-{
-    [self changeInterfaceOrientation:self.isFullScreen ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeRight];
-}
-
 
 - (void)initUI
 {
@@ -538,10 +530,12 @@
 
 - (FHControlView *)controlView
 {
-    if (!_controlView) {
+    if (!_controlView)
+    {
         _controlView = [[FHControlView alloc] init];
         [_controlView.playBtn addTarget:self action:@selector(controlAction:) forControlEvents:UIControlEventTouchUpInside];
         [_controlView.fullScreanBtn addTarget:self action:@selector(fullScreanAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_controlView.playSlider addTarget:self action:@selector(seekToPlayerTimeAction:) forControlEvents:UIControlEventValueChanged];
     }
     
     return _controlView;
@@ -568,8 +562,14 @@
 
 - (void)dealloc
 {
-    [self stop];
     NSLog(@"%@ dealloc",[self class]);
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    NSLog(@"didReceiveMemoryWarning");
 }
 
 @end
