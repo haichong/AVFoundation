@@ -165,6 +165,7 @@
     
     // 保持containerView在最上层，这样就可以控制视频的播放了。
     [presentView addSubview:self.controlView];
+    self.controlView.frame = self.presentView.bounds;
     [self updateControlViewConstraint];
     
     [self play];
@@ -507,21 +508,7 @@
 }
 
 - (void)updateControlViewConstraint
-{
-    // 当屏幕旋转后，屏幕的长宽也发生了变化，现在长的值变为了原来的宽的值
-    if (self.isFullScreen)
-    {
-        CGFloat width = self.presentView.bounds.size.width;
-        CGFloat height = self.presentView.bounds.size.height;
-        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
-    }
-    else
-    {
-        CGFloat width = SCREEN_WIDTH;
-        CGFloat height = SCREEN_WIDTH / 7 * 4;
-        self.controlView.frame = CGRectMake(0, height - 40, width, 40);
-    }
-    
+{    
     // 如果不执行下面的两个方法， 上面的设置无效
     // 标记更新约束
     [self.controlView setNeedsUpdateConstraints];
