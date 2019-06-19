@@ -76,7 +76,7 @@
 @end
 
 
-@interface FHSamplePlayerViewController ()
+@interface FHSamplePlayerViewController ()<AVAssetResourceLoaderDelegate>
 {
     id _timeObserver;
     id _itmePlaybackEndObserver;
@@ -87,7 +87,7 @@
 @property (strong, nonatomic) FHPlayerPresentView *presentView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
-
+@property (strong, nonatomic) NSMutableArray *pendingRequests;
 
 // 播放资源：只包含媒体资源的静态信息
 @property (nonatomic, strong) AVURLAsset *asset;
@@ -129,7 +129,9 @@
 {
     NSURL *url = self.dataSource[_currentIndex];
     AVURLAsset *asset = [AVURLAsset assetWithURL:url];
+    [asset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
     self.asset = asset;
+    
     
     AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:asset];
     // 暂停的时候不能继续缓冲
@@ -604,5 +606,47 @@
     
     NSLog(@"didReceiveMemoryWarning");
 }
+
+- (void)dealWithLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
+{
+    NSURL *interceptedURL = [loadingRequest.request URL];
+    NSRange range = NSMakeRange((NSUInteger)loadingRequest.dataRequest.currentOffset, NSUIntegerMax);
+    
+    
+}
+
+#pragma mark - AVAssetResourceLoaderDelegate
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
+{
+    if (_pendingRequests)
+    {
+        _pendingRequests = [NSMutableArray new];
+    }
+    
+    [self.pendingRequests addObject:resourceLoader];
+    [self dealWithLoadingRequest:loadingRequest];
+    
+    return YES;
+}
+
+- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest NS_AVAILABLE(10_9, 7_0)
+{
+    [self.pendingRequests removeObject:loadingRequest];
+}
+
+//- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForRenewalOfRequestedResource:(AVAssetResourceRenewalRequest *)renewalRequest
+//{
+//    return YES;
+//}
+
+//- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForResponseToAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0)
+//{
+//    return YES;
+//}
+//
+//- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0)
+//{
+//
+//}
 
 @end
