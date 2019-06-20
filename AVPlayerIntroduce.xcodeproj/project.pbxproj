@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0006655422BB66D400EF64E5 /* VideoRequestTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 0006655322BB66D400EF64E5 /* VideoRequestTask.m */; };
+		0006655A22BB74C900EF64E5 /* LoaderURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0006655922BB74C900EF64E5 /* LoaderURLConnection.m */; };
 		00806BFA21106FDF002BC2EB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BF921106FDF002BC2EB /* AppDelegate.m */; };
 		00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00806BFC21106FDF002BC2EB /* FHSamplePlayerViewController.m */; };
 		00806C0221106FE0002BC2EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00806C0121106FE0002BC2EB /* Assets.xcassets */; };
@@ -28,6 +30,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0006655222BB66D400EF64E5 /* VideoRequestTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoRequestTask.h; sourceTree = "<group>"; };
+		0006655322BB66D400EF64E5 /* VideoRequestTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoRequestTask.m; sourceTree = "<group>"; };
+		0006655822BB74C900EF64E5 /* LoaderURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoaderURLConnection.h; sourceTree = "<group>"; };
+		0006655922BB74C900EF64E5 /* LoaderURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoaderURLConnection.m; sourceTree = "<group>"; };
 		00806BF521106FDF002BC2EB /* AVPlayerIntroduce.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayerIntroduce.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00806BF821106FDF002BC2EB /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		00806BF921106FDF002BC2EB /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -73,6 +79,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0006655122BB66B800EF64E5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0006655822BB74C900EF64E5 /* LoaderURLConnection.h */,
+				0006655922BB74C900EF64E5 /* LoaderURLConnection.m */,
+				0006655222BB66D400EF64E5 /* VideoRequestTask.h */,
+				0006655322BB66D400EF64E5 /* VideoRequestTask.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		00806BEC21106FDF002BC2EB = {
 			isa = PBXGroup;
 			children = (
@@ -120,6 +137,7 @@
 		00806C1221109296002BC2EB /* 做一个最简单的播放器 */ = {
 			isa = PBXGroup;
 			children = (
+				0006655122BB66B800EF64E5 /* Model */,
 				00806C192111DDF5002BC2EB /* Controller */,
 				00806C1A2111DE00002BC2EB /* View */,
 			);
@@ -240,7 +258,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0006655422BB66D400EF64E5 /* VideoRequestTask.m in Sources */,
 				00806C1021109151002BC2EB /* FHFunctionListViewController.m in Sources */,
+				0006655A22BB74C900EF64E5 /* LoaderURLConnection.m in Sources */,
 				00806BFD21106FDF002BC2EB /* FHSamplePlayerViewController.m in Sources */,
 				00806C0821106FE0002BC2EB /* main.m in Sources */,
 				00D1BC7421340F3D000A5050 /* FHNavigationController.m in Sources */,

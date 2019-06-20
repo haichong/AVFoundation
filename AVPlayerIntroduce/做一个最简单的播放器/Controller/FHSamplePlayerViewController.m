@@ -10,6 +10,10 @@
 
 // 导入AVFoundation框架
 #import <AVFoundation/AVFoundation.h>
+#import <MobileCoreServices/MobileCoreServices.h>
+
+#import "VideoRequestTask.h"
+#import "LoaderURLConnection.h"
 
 #import "FHControlView.h"
 
@@ -76,7 +80,7 @@
 @end
 
 
-@interface FHSamplePlayerViewController ()<AVAssetResourceLoaderDelegate>
+@interface FHSamplePlayerViewController ()<AVAssetResourceLoaderDelegate, AVAssetResourceLoaderDelegate,  TBVideoRequestTaskDelegate>
 {
     id _timeObserver;
     id _itmePlaybackEndObserver;
@@ -109,6 +113,10 @@
 
 @property (nonatomic, assign) BOOL isDragging;
 
+@property (nonatomic, copy) NSString *videoPath;
+
+@property (nonatomic, strong) LoaderURLConnection *resouerLoader;
+
 
 @end
 
@@ -127,13 +135,37 @@
 // 初始化播放器
 - (void)initPlayer
 {
+    /*
+     当视频播放一次之后 就用这个，播放本地的视频
+     建议用模拟器运行项目，这样可以清楚的看到保存的视频
+     **/
+    NSLog(@"视频保存的位置 = %@", self.videoPath);
+    // 本地视频的播放url
+    NSURL *localUrl = [NSURL fileURLWithPath:self.videoPath];
+    // 在线视频的播放url
     NSURL *url = self.dataSource[_currentIndex];
-    AVURLAsset *asset = [AVURLAsset assetWithURL:url];
-    [asset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
-    self.asset = asset;
     
+    NSURL *assetUrl = url; //localUrl; 
+    NSString *str = [assetUrl absoluteString];
+    if ([str hasPrefix:@"http"])
+    {
+        self.resouerLoader = [[LoaderURLConnection alloc] init];
+        NSURL *playUrl = [self.resouerLoader getSchemeVideoURL:assetUrl];
+        self.asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
+        /*
+         delegate：代理必须传一个新的对象，不能用self，否则代理的方法不执行，视频也不播放
+         delegateQueue：必须主队列，否则崩溃
+         **/
+        [self.asset.resourceLoader setDelegate:self.resouerLoader queue:dispatch_get_main_queue()];
+    }
+    else
+    {
+        self.asset = [AVURLAsset URLAssetWithURL:assetUrl options:nil];
+
+    }
     
-    AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:asset];
+
+    AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:self.asset];
     // 暂停的时候不能继续缓冲
     item.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
     if (@available(iOS 10.0, *))
@@ -247,7 +279,7 @@
     _itmePlaybackEndObserver = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         NSLog(@"本视频播放结束了");
         // 播放结束之后，播放下一个；列表循环
-        [weakSelf playTheNext:nil];
+        //[weakSelf playTheNext:nil];
     }];
 }
 
@@ -412,7 +444,7 @@
 {
     if (!_dataSource)
     {
-        _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
+        _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
     }
     
     return _dataSource;
@@ -575,6 +607,18 @@
     return _controlView;
 }
 
+- (NSString *)videoPath
+{
+    if (!_videoPath)
+    {
+        NSString *document = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject;
+        _videoPath = [document stringByAppendingPathComponent:@"保存数据.mp4"];
+    }
+    
+    return _videoPath;
+}
+
+
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     if (self.isFullScreen)
@@ -594,6 +638,7 @@
     return NO;
 }
 
+
 - (void)dealloc
 {
     [self stop];
@@ -606,47 +651,5 @@
     
     NSLog(@"didReceiveMemoryWarning");
 }
-
-- (void)dealWithLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
-{
-    NSURL *interceptedURL = [loadingRequest.request URL];
-    NSRange range = NSMakeRange((NSUInteger)loadingRequest.dataRequest.currentOffset, NSUIntegerMax);
-    
-    
-}
-
-#pragma mark - AVAssetResourceLoaderDelegate
-- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
-{
-    if (_pendingRequests)
-    {
-        _pendingRequests = [NSMutableArray new];
-    }
-    
-    [self.pendingRequests addObject:resourceLoader];
-    [self dealWithLoadingRequest:loadingRequest];
-    
-    return YES;
-}
-
-- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest NS_AVAILABLE(10_9, 7_0)
-{
-    [self.pendingRequests removeObject:loadingRequest];
-}
-
-//- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForRenewalOfRequestedResource:(AVAssetResourceRenewalRequest *)renewalRequest
-//{
-//    return YES;
-//}
-
-//- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForResponseToAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0)
-//{
-//    return YES;
-//}
-//
-//- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge NS_AVAILABLE(10_10, 8_0)
-//{
-//
-//}
 
 @end
