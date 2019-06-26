@@ -102,22 +102,6 @@
     return didRespondFully;
 }
 
-/**
- *  必须返回Yes，如果返回NO，则resourceLoader将会加载出现故障的数据
- *  这里会出现很多个loadingRequest请求， 需要为每一次请求作出处理
- *  @param resourceLoader 资源管理器
- *  @param loadingRequest 每一小块数据的请求
- *
- */
-- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
-{
-    [self.pendingRequests addObject:loadingRequest];
-    [self dealWithLoadingRequest:loadingRequest];
-    NSLog(@"----%@", loadingRequest);
-    return YES;
-}
-
-
 - (void)dealWithLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
 {
     NSURL *interceptedURL = [loadingRequest.request URL];
@@ -141,6 +125,34 @@
     }
 }
 
+- (NSURL *)getSchemeVideoURL:(NSURL *)url
+{
+    /*
+     修改scheme， 以前是https:// 现在变成streaming://
+     如果不修改协议，不走AVAssetResourceLoaderDelegate里的方法
+     **/
+    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+    components.scheme = @"streaming";
+    return [components URL];
+}
+
+
+#pragma mark - AVAssetResourceLoaderDelegate
+/**
+ *  必须返回Yes，如果返回NO，则resourceLoader将会加载出现故障的数据
+ *  这里会出现很多个loadingRequest请求， 需要为每一次请求作出处理
+ *  @param resourceLoader 资源管理器
+ *  @param loadingRequest 每一小块数据的请求
+ *
+ */
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
+{
+    [self.pendingRequests addObject:loadingRequest];
+    [self dealWithLoadingRequest:loadingRequest];
+    NSLog(@"----%@", loadingRequest);
+    return YES;
+}
+
 // 请求关闭
 - (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
 {
@@ -148,12 +160,7 @@
     
 }
 
-- (NSURL *)getSchemeVideoURL:(NSURL *)url
-{
-    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    components.scheme = @"streaming";
-    return [components URL];
-}
+
 
 #pragma mark - VideoRequestTaskDelegate
 

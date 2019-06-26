@@ -149,6 +149,9 @@
     NSString *str = [assetUrl absoluteString];
     if ([str hasPrefix:@"http"])
     {
+        /*
+         LoaderURLConnection：self.asset.resourceLoader的代理
+         **/
         self.resouerLoader = [[LoaderURLConnection alloc] init];
         NSURL *playUrl = [self.resouerLoader getSchemeVideoURL:assetUrl];
         self.asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
