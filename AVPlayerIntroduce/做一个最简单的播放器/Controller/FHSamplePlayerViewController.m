@@ -80,7 +80,7 @@
 @end
 
 
-@interface FHSamplePlayerViewController ()<AVAssetResourceLoaderDelegate, AVAssetResourceLoaderDelegate,  TBVideoRequestTaskDelegate>
+@interface FHSamplePlayerViewController ()<AVAssetResourceLoaderDelegate, AVAssetResourceLoaderDelegate,  VideoRequestTaskDelegate>
 {
     id _timeObserver;
     id _itmePlaybackEndObserver;

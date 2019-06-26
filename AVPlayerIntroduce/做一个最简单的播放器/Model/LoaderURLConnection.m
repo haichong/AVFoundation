@@ -11,9 +11,11 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "VideoRequestTask.h"
 
-@interface LoaderURLConnection ()<TBVideoRequestTaskDelegate>
+@interface LoaderURLConnection ()<VideoRequestTaskDelegate>
 
+// 待处理的请求
 @property (nonatomic, strong) NSMutableArray *pendingRequests;
+// 视频保存路径
 @property (nonatomic, copy  ) NSString       *videoPath;
 
 @end
@@ -23,7 +25,8 @@
 - (instancetype)init
 {
     self = [super init];
-    if (self) {
+    if (self)
+    {
         _pendingRequests = [NSMutableArray array];
         NSString *document = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject;
         _videoPath = [document stringByAppendingPathComponent:@"temp.mp4"];
@@ -31,6 +34,7 @@
     return self;
 }
 
+//对每次请求加上长度，文件类型等信息
 - (void)fillInContentInformation:(AVAssetResourceLoadingContentInformationRequest *)contentInformationRequest
 {
     NSString *mimeType = self.task.mimeType;
@@ -44,15 +48,18 @@
 
 - (void)processPendingRequests
 {
-    NSMutableArray *requestsCompleted = [NSMutableArray array];  //请求完成的数组
+    //请求完成的数组
+    NSMutableArray *requestsCompleted = [NSMutableArray array];
     //每次下载一块数据都是一次请求，把这些请求放到数组，遍历数组
     for (AVAssetResourceLoadingRequest *loadingRequest in self.pendingRequests)
     {
-        [self fillInContentInformation:loadingRequest.contentInformationRequest]; //对每次请求加上长度，文件类型等信息
+        //对每次请求加上长度，文件类型等信息
+        [self fillInContentInformation:loadingRequest.contentInformationRequest];
         
         BOOL didRespondCompletely = [self respondWithDataForRequest:loadingRequest.dataRequest]; //判断此次请求的数据是否处理完全
         
-        if (didRespondCompletely) {
+        if (didRespondCompletely)
+        {
 
             [requestsCompleted addObject:loadingRequest];  //如果完整，把此次请求放进 请求完成的数组
             [loadingRequest finishLoading];
@@ -60,8 +67,8 @@
         }
     }
 
-    [self.pendingRequests removeObjectsInArray:requestsCompleted];   //在所有请求的数组中移除已经完成的
-    
+    //在所有请求的数组中移除已经完成的
+    [self.pendingRequests removeObjectsInArray:requestsCompleted];
 }
 
 
@@ -69,7 +76,8 @@
 {
     long long startOffset = dataRequest.requestedOffset;
 
-    if (dataRequest.currentOffset != 0) {
+    if (dataRequest.currentOffset != 0)
+    {
         startOffset = dataRequest.currentOffset;
     }
     
@@ -79,7 +87,8 @@
         return NO;
     }
     
-    if (startOffset < self.task.offset) {
+    if (startOffset < self.task.offset)
+    {
         return NO;
     }
     
@@ -94,8 +103,6 @@
     
     [dataRequest respondWithData:[filedata subdataWithRange:NSMakeRange((NSUInteger)startOffset- self.task.offset, (NSUInteger)numberOfBytesToRespondWith)]];
     
-    
-    
     long long endOffset = startOffset + dataRequest.requestedLength;
     BOOL didRespondFully = (self.task.offset + self.task.downLoadingOffset) >= endOffset;
 
@@ -107,30 +114,33 @@
     NSURL *interceptedURL = [loadingRequest.request URL];
     NSRange range = NSMakeRange((NSUInteger)loadingRequest.dataRequest.currentOffset, NSUIntegerMax);
     
-    if (self.task.downLoadingOffset > 0) {
+    if (self.task.downLoadingOffset > 0)
+    {
         [self processPendingRequests];
     }
     
-    if (!self.task) {
+    if (!self.task)
+    {
         self.task = [[VideoRequestTask alloc] init];
         self.task.delegate = self;
         [self.task setUrl:interceptedURL offset:0];
-    } else {
-        // 如果新的rang的起始位置比当前缓存的位置还大300k，则重新按照range请求数据
-        if (self.task.offset + self.task.downLoadingOffset + 1024 * 300 < range.location ||
-            // 如果往回拖也重新请求
-            range.location < self.task.offset) {
-            [self.task setUrl:interceptedURL offset:range.location];
-        }
+    }
+    
+    // 如果新的rang的起始位置比当前缓存的位置还大300k，则重新按照range请求数据
+    if (self.task.offset + self.task.downLoadingOffset + 1024 * 300 < range.location ||
+        // 如果往回拖也重新请求
+        range.location < self.task.offset)
+    {
+        [self.task setUrl:interceptedURL offset:range.location];
     }
 }
 
 - (NSURL *)getSchemeVideoURL:(NSURL *)url
 {
-    /*
-     修改scheme， 以前是https:// 现在变成streaming://
-     如果不修改协议，不走AVAssetResourceLoaderDelegate里的方法
-     **/
+    /**
+     * 修改scheme， 以前是https:// 现在变成streaming://
+     * 如果不修改协议，不走AVAssetResourceLoaderDelegate里的方法
+     */
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
     components.scheme = @"streaming";
     return [components URL];
@@ -161,7 +171,6 @@
 }
 
 
-
 #pragma mark - VideoRequestTaskDelegate
 
 - (void)task:(VideoRequestTask *)task didReceiveVideoLength:(NSUInteger)ideoLength mimeType:(NSString *)mimeType
@@ -177,14 +186,16 @@
 
 - (void)didFinishLoadingWithTask:(VideoRequestTask *)task
 {
-    if ([self.delegate respondsToSelector:@selector(didFinishLoadingWithTask:)]) {
+    if ([self.delegate respondsToSelector:@selector(didFinishLoadingWithTask:)])
+    {
         [self.delegate didFinishLoadingWithTask:task];
     }
 }
 
 - (void)didFailLoadingWithTask:(VideoRequestTask *)task WithError:(NSInteger)errorCode
 {
-    if ([self.delegate respondsToSelector:@selector(didFailLoadingWithTask:WithError:)]) {
+    if ([self.delegate respondsToSelector:@selector(didFailLoadingWithTask:WithError:)])
+    {
         [self.delegate didFailLoadingWithTask:task WithError:errorCode];
     }
     

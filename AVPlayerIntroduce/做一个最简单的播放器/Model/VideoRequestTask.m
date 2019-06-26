@@ -36,13 +36,13 @@
         _taskArr = [NSMutableArray array];
         NSString *document = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject;
         _tempPath =  [document stringByAppendingPathComponent:@"temp.mp4"];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:_tempPath]) {
+        
+        // 如果路径已经存在，删除
+        if ([[NSFileManager defaultManager] fileExistsAtPath:_tempPath])
+        {
             [[NSFileManager defaultManager] removeItemAtPath:_tempPath error:nil];
-            [[NSFileManager defaultManager] createFileAtPath:_tempPath contents:nil attributes:nil];
-            
-        } else {
-            [[NSFileManager defaultManager] createFileAtPath:_tempPath contents:nil attributes:nil];
         }
+        [[NSFileManager defaultManager] createFileAtPath:_tempPath contents:nil attributes:nil];
         
     }
     return self;
@@ -54,7 +54,8 @@
     _offset = offset;
     
     //如果建立第二次请求，先移除原来文件，再创建新的
-    if (self.taskArr.count >= 1) {
+    if (self.taskArr.count >= 1)
+    {
         [[NSFileManager defaultManager] removeItemAtPath:_tempPath error:nil];
         [[NSFileManager defaultManager] createFileAtPath:_tempPath contents:nil attributes:nil];
     }
@@ -66,7 +67,8 @@
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[actualURLComponents URL] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:20.0];
     
-    if (offset > 0 && self.videoLength > 0) {
+    if (offset > 0 && self.videoLength > 0)
+    {
         [request addValue:[NSString stringWithFormat:@"bytes=%ld-%ld",(unsigned long)offset, (unsigned long)self.videoLength - 1] forHTTPHeaderField:@"Range"];
     }
 
@@ -77,14 +79,11 @@
        
 }
 
-
-
 - (void)cancel
 {
     [self.connection cancel];
     
 }
-
 
 #pragma mark -  NSURLConnection Delegate Methods
 
@@ -102,17 +101,22 @@
     
     NSUInteger videoLength;
     
-    if ([length integerValue] == 0) {
+    if ([length integerValue] == 0)
+    {
         videoLength = (NSUInteger)httpResponse.expectedContentLength;
-    } else {
+    }
+    else
+    {
         videoLength = [length integerValue];
     }
     
     self.videoLength = videoLength;
+    NSLog(@"视频的长度--------%zd", self.videoLength / 1024 / 1024);
     self.mimeType = @"video/mp4";
     
 
-    if ([self.delegate respondsToSelector:@selector(task:didReceiveVideoLength:mimeType:)]) {
+    if ([self.delegate respondsToSelector:@selector(task:didReceiveVideoLength:mimeType:)])
+    {
         [self.delegate task:self didReceiveVideoLength:self.videoLength mimeType:self.mimeType];
     }
     
@@ -120,21 +124,19 @@
     
     
     self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:_tempPath];
-    
-   
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    
+    // 保存接收到的数据
     [self.fileHandle seekToEndOfFile];
-    
     [self.fileHandle writeData:data];
 
     _downLoadingOffset += data.length;
     
     
-    if ([self.delegate respondsToSelector:@selector(didReceiveVideoDataWithTask:)]) {
+    if ([self.delegate respondsToSelector:@selector(didReceiveVideoDataWithTask:)])
+    {
         [self.delegate didReceiveVideoDataWithTask:self];
     }
     
@@ -144,7 +146,8 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     
-    if (self.taskArr.count < 2) {
+    if (self.taskArr.count < 2)
+    {
         _isFinishLoad = YES;
         
         //这里自己写需要保存数据的路径
@@ -152,11 +155,7 @@
         NSString *movePath =  [document stringByAppendingPathComponent:@"保存数据.mp4"];
 
         BOOL isSuccess = [[NSFileManager defaultManager] copyItemAtPath:_tempPath toPath:movePath error:nil];
-        if (isSuccess) {
-            NSLog(@"rename success");
-        }else{
-            NSLog(@"rename fail");
-        }
+        NSLog(@"%@", isSuccess ? @"rename success" : @"rename fail");
         NSLog(@"----%@", movePath);
     }
     
@@ -173,12 +172,14 @@
 //找不到服务器：-1003
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    if (error.code == -1001 && !_once) {      //网络超时，重连一次
+    if (error.code == -1001 && !_once)
+    {      //网络超时，重连一次
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self continueLoading];
         });
     }
-    if ([self.delegate respondsToSelector:@selector(didFailLoadingWithTask:WithError:)]) {
+    if ([self.delegate respondsToSelector:@selector(didFailLoadingWithTask:WithError:)])
+    {
         [self.delegate didFailLoadingWithTask:self WithError:error.code];
     }
     if (error.code == -1009) {
@@ -209,8 +210,5 @@
     [self.connection cancel];
     //移除文件
     [[NSFileManager defaultManager] removeItemAtPath:_tempPath error:nil];
-    
-    
-    
 }
 @end
