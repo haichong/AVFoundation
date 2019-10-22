@@ -147,26 +147,26 @@
     
     NSURL *assetUrl = url; //localUrl; 
     NSString *str = [assetUrl absoluteString];
-    if ([str hasPrefix:@"http"])
-    {
-        /*
-         LoaderURLConnection：self.asset.resourceLoader的代理
-         **/
-        self.resouerLoader = [[LoaderURLConnection alloc] init];
-        NSURL *playUrl = [self.resouerLoader getSchemeVideoURL:assetUrl];
-        self.asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
-        /*
-         delegate：代理必须传一个新的对象，不能用self，否则代理的方法不执行，视频也不播放
-         delegateQueue：必须主队列，否则崩溃
-         **/
-        [self.asset.resourceLoader setDelegate:self.resouerLoader queue:dispatch_get_main_queue()];
-    }
-    else
-    {
-        self.asset = [AVURLAsset URLAssetWithURL:assetUrl options:nil];
-
-    }
-    
+//    if ([str hasPrefix:@"http"])
+//    {
+//        /*
+//         LoaderURLConnection：self.asset.resourceLoader的代理
+//         **/
+//        self.resouerLoader = [[LoaderURLConnection alloc] init];
+//        NSURL *playUrl = [self.resouerLoader getSchemeVideoURL:assetUrl];
+//        self.asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
+//        /*
+//         delegate：代理必须传一个新的对象，不能用self，否则代理的方法不执行，视频也不播放
+//         delegateQueue：必须主队列，否则崩溃
+//         **/
+//        [self.asset.resourceLoader setDelegate:self.resouerLoader queue:dispatch_get_main_queue()];
+//    }
+//    else
+//    {
+//        self.asset = [AVURLAsset URLAssetWithURL:assetUrl options:nil];
+//
+//    }
+    self.asset = [AVURLAsset URLAssetWithURL:assetUrl options:nil];
 
     AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:self.asset];
     // 暂停的时候不能继续缓冲
@@ -196,6 +196,7 @@
     //  self.playerLayer = avLayer;
     
     FHPlayerPresentView *presentView = [[FHPlayerPresentView alloc] initWithFrame:self.containerView.bounds];
+
     [self.containerView addSubview:presentView];
     presentView.player = self.player;
     self.presentView = presentView;
@@ -339,10 +340,11 @@
         
         // 当由于某种原因（eg，没有缓冲）不能继续播放了，视频会自动暂停
         // 但当有缓冲的时候却不会自动播放，所有我们要让视频继续播放
-        if (self.playerItem.playbackLikelyToKeepUp && self.playing)
-        {
-            [self play];
-        }
+//        if (self.playerItem.playbackLikelyToKeepUp && self.playing)
+//        {
+//            [self play];
+//        }
+        [self play];
     }
     
     if ([keyPath isEqualToString:@"playbackBufferEmpty"])
@@ -447,7 +449,7 @@
 {
     if (!_dataSource)
     {
-        _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/cn/home/2018/da585964_d062_4b1d_97d1_af34b440fe37/films/behind-the-mac/mac-behind-the-mac-tpl-cn_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
+        _dataSource = @[[NSURL URLWithString:@"https://www.apple.com/105/media/us/iphone-11-pro/2019/3bd902e4-0752-4ac1-95f8-6225c32aec6d/films/demo/iphone-11-pro-demo-tpl-cc-us-2019_1280x720h.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2017/01df5b43-28e4-4848-bf20-490c34a926a7/films/feature/iphone-x-feature-cn-20170912_848x480.mp4"],[NSURL URLWithString:@"https://www.apple.com/105/media/cn/iphone-x/2018/5b64bc98_3bd3_4c12_9b3e_bae2df6b2d9d/films/unleash/iphone-x-unleash-tpl-cn-2018_848x480.mp4"]];
     }
     
     return _dataSource;
