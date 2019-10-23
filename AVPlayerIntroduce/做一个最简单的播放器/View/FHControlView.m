@@ -26,4 +26,12 @@
     return self;
 }
 
+- (void)initControlStatus
+{
+    self.playTimeLabel.text = @"00:00";
+    self.totalTimeLabel.text = @"00:00";
+    self.playSlider.value = 0;
+    self.loadedProgress.progress = 0;
+}
+
 @end

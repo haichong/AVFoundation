@@ -220,6 +220,10 @@
     [self updateControlViewPlayStatus];
 }
 
+- (void)initControlViewStatus {
+    [self.controlView initControlStatus];
+}
+
 // 停止播放视频
 - (void)stop
 {
@@ -333,7 +337,7 @@
         //NSLog(@"缓冲进度：%.2f",[self loadedTime]);
         CGFloat loadedTime = [self loadedTime];
         CGFloat duration = CMTimeGetSeconds(self.playerItem.duration);
-         self.controlView.loadedProgress.progress = loadedTime / duration;
+        self.controlView.loadedProgress.progress = loadedTime / duration;
     }
     
     if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"])

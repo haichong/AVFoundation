@@ -19,4 +19,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *fullScreanBtn;
 
 
+/// 初始化控制器状态
+- (void)initControlStatus;
+
 @end
