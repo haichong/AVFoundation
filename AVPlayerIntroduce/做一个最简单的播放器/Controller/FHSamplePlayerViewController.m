@@ -129,8 +129,9 @@
     
     _currentIndex = 0;
 
-    [self initPlayer];
     [self initUI];
+    [self initPlayer];
+   
 }
 
 // 初始化播放器
@@ -342,14 +343,12 @@
     if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"])
     {
         NSLog(@"%@可以正常播放",self.playerItem.playbackLikelyToKeepUp ? @"" : @"不");
-        
         // 当由于某种原因（eg，没有缓冲）不能继续播放了，视频会自动暂停
         // 但当有缓冲的时候却不会自动播放，所有我们要让视频继续播放
-//        if (self.playerItem.playbackLikelyToKeepUp && self.playing)
-//        {
-//            [self play];
-//        }
-        [self play];
+        if (self.playerItem.playbackLikelyToKeepUp && self.playing)
+        {
+            [self play];
+        }
     }
     
     if ([keyPath isEqualToString:@"playbackBufferEmpty"])
@@ -601,6 +600,12 @@
 - (void)initUI
 {
     self.view.backgroundColor = [UIColor whiteColor];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    self.presentView.frame = self.containerView.bounds;
 }
 
 - (FHControlView *)controlView
